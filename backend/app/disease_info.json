@@ -1,0 +1,145 @@
+{
+  "_note": "Draft content. The agronomist must review every name and advice line (especially Telugu) before field use.",
+  "crops": {
+    "tomato": {
+      "name_en": "Tomato",
+      "name_te": "టమాటా",
+      "classes": {
+        "healthy": {
+          "name_en": "Healthy",
+          "name_te": "ఆరోగ్యంగా ఉంది",
+          "group": "healthy"
+        },
+        "early_blight": {
+          "name_en": "Early blight",
+          "name_te": "ముందు దశ ఆకు మాడు తెగులు",
+          "group": "fungal"
+        },
+        "late_blight": {
+          "name_en": "Late blight",
+          "name_te": "ఆలస్య ఆకు మాడు తెగులు",
+          "group": "fungal"
+        },
+        "leaf_curl_virus": {
+          "name_en": "Leaf curl virus",
+          "name_te": "ఆకు ముడత వైరస్",
+          "group": "viral"
+        },
+        "septoria_leaf_spot": {
+          "name_en": "Septoria leaf spot",
+          "name_te": "ఆకు మచ్చ తెగులు (సెప్టోరియా)",
+          "group": "fungal"
+        },
+        "leaf_mold": {
+          "name_en": "Leaf mold",
+          "name_te": "ఆకు బూజు (లీఫ్ మోల్డ్)",
+          "group": "fungal"
+        },
+        "spider_mites": {
+          "name_en": "Spider mites",
+          "name_te": "ఎర్ర నల్లి",
+          "group": "mites"
+        }
+      }
+    },
+    "cucumber": {
+      "name_en": "Cucumber (Keera dosakaya)",
+      "name_te": "కీర దోసకాయ",
+      "classes": {
+        "healthy": {
+          "name_en": "Healthy",
+          "name_te": "ఆరోగ్యంగా ఉంది",
+          "group": "healthy"
+        },
+        "downy_mildew": {
+          "name_en": "Downy mildew",
+          "name_te": "బూజు తెగులు",
+          "group": "fungal"
+        },
+        "powdery_mildew": {
+          "name_en": "Powdery mildew",
+          "name_te": "బూడిద తెగులు",
+          "group": "fungal"
+        },
+        "anthracnose": {
+          "name_en": "Anthracnose",
+          "name_te": "ఆంత్రాక్నోస్ తెగులు",
+          "group": "fungal"
+        },
+        "mosaic_virus": {
+          "name_en": "Mosaic virus",
+          "name_te": "మొజాయిక్ వైరస్ తెగులు",
+          "group": "viral"
+        }
+      }
+    },
+    "coriander": {
+      "name_en": "Coriander (Kothimeera)",
+      "name_te": "కొత్తిమీర",
+      "classes": {
+        "healthy": {
+          "name_en": "Healthy",
+          "name_te": "ఆరోగ్యంగా ఉంది",
+          "group": "healthy"
+        },
+        "powdery_mildew": {
+          "name_en": "Powdery mildew",
+          "name_te": "బూడిద తెగులు",
+          "group": "fungal"
+        },
+        "stem_gall": {
+          "name_en": "Stem gall",
+          "name_te": "కాండం గడ్డ తెగులు (స్టెమ్ గాల్)",
+          "group": "fungal"
+        },
+        "wilt": {
+          "name_en": "Wilt",
+          "name_te": "ఎండు తెగులు",
+          "group": "wilt"
+        }
+      }
+    }
+  },
+  "advice": {
+    "healthy": {
+      "en": "The plant looks healthy. Keep checking it every day.",
+      "te": "మొక్క ఆరోగ్యంగా ఉంది. రోజూ పరిశీలన కొనసాగించండి."
+    },
+    "fungal": {
+      "en": "Remove the affected leaves and destroy them outside the shed. Water only through drip so leaves stay dry. Ask the agronomist before any spray.",
+      "te": "తెగులు సోకిన ఆకులను తీసి షెడ్ బయట నాశనం చేయండి. ఆకుల మీద నీరు పడకుండా డ్రిప్ ద్వారా మాత్రమే నీరు ఇవ్వండి. పిచికారీ ముందు వ్యవసాయ నిపుణుల సలహా తీసుకోండి."
+    },
+    "viral": {
+      "en": "Pull out infected plants with roots. Put up yellow sticky traps to control whitefly and aphids. Inform the agronomist.",
+      "te": "వైరస్ సోకిన మొక్కలను వేర్లతో సహా తీసివేయండి. తెల్లదోమ, పేనుబంక నియంత్రణకు పసుపు జిగురు అట్టలు పెట్టండి. వ్యవసాయ నిపుణులకు తెలియజేయండి."
+    },
+    "mites": {
+      "en": "Check the underside of leaves. Remove badly affected leaves. Ask the agronomist about a neem-based spray.",
+      "te": "ఆకుల అడుగు భాగాన్ని పరిశీలించండి. ఎక్కువగా సోకిన ఆకులను తీసివేయండి. వేప ఆధారిత మందు గురించి నిపుణుల సలహా తీసుకోండి."
+    },
+    "wilt": {
+      "en": "Remove wilted plants. Make sure water does not stand in the soil. Inform the agronomist.",
+      "te": "ఎండిపోయిన మొక్కలను తీసివేయండి. నేలలో నీరు నిలవకుండా చూడండి. వ్యవసాయ నిపుణులకు తెలియజేయండి."
+    },
+    "uncertain": {
+      "en": "The app is not sure. Take a clear photo of one leaf in daylight, or wait for the agronomist.",
+      "te": "యాప్ సరిగా గుర్తించలేదు. పగటి వెలుతురులో ఒక ఆకు స్పష్టమైన ఫోటో మళ్ళీ తీయండి, లేదా నిపుణుల సమాధానం కోసం వేచి ఉండండి."
+    }
+  },
+  "messages": {
+    "not_crop": {
+      "en": "This does not look like a {crop_en} leaf. Please take a photo of one {crop_en} leaf.",
+      "te": "ఇది {crop_te} ఆకు లాగా లేదు. దయచేసి ఒక {crop_te} ఆకు ఫోటో తీయండి."
+    },
+    "wrong_crop": {
+      "en": "This looks like a {other_en} leaf, not {crop_en}. Did you pick the right crop?",
+      "te": "ఇది {crop_te} కాదు, {other_te} ఆకు లాగా ఉంది. పంటను సరిగ్గా ఎంచుకున్నారా?"
+    },
+    "not_related": {
+      "name_en": "Not a related leaf",
+      "name_te": "సంబంధం లేని ఆకు",
+      "en": "This is not a tomato, cucumber or coriander leaf. Zemli checks only these crops. Please photograph one leaf of these crops.",
+      "te": "ఇది టమాటా, కీర దోసకాయ లేదా కొత్తిమీర ఆకు కాదు. Zemli ఈ పంటలను మాత్రమే పరిశీలిస్తుంది. దయచేసి ఈ పంటలలో ఒక ఆకు ఫోటో తీయండి."
+    }
+  }
+}

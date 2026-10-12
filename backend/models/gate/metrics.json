@@ -1,0 +1,94 @@
+{
+  "crop": "gate",
+  "arch": "efficientnet_b0",
+  "classes": [
+    "cucumber",
+    "other",
+    "tomato"
+  ],
+  "train_images": 12549,
+  "val": {
+    "images": 1416,
+    "accuracy": 0.9859,
+    "macro_f1": 0.9891,
+    "per_class": {
+      "cucumber": {
+        "precision": 1.0,
+        "recall": 1.0,
+        "f1": 1.0,
+        "support": 163
+      },
+      "other": {
+        "precision": 0.9874,
+        "recall": 0.9847,
+        "f1": 0.9861,
+        "support": 719
+      },
+      "tomato": {
+        "precision": 0.9795,
+        "recall": 0.9831,
+        "f1": 0.9813,
+        "support": 534
+      }
+    },
+    "confusion_matrix": [
+      [
+        163,
+        0,
+        0
+      ],
+      [
+        0,
+        708,
+        11
+      ],
+      [
+        0,
+        9,
+        525
+      ]
+    ]
+  },
+  "test_public": {
+    "images": 1417,
+    "accuracy": 0.9852,
+    "macro_f1": 0.9886,
+    "per_class": {
+      "cucumber": {
+        "precision": 1.0,
+        "recall": 1.0,
+        "f1": 1.0,
+        "support": 163
+      },
+      "other": {
+        "precision": 0.9861,
+        "recall": 0.9847,
+        "f1": 0.9854,
+        "support": 720
+      },
+      "tomato": {
+        "precision": 0.9794,
+        "recall": 0.9813,
+        "f1": 0.9804,
+        "support": 534
+      }
+    },
+    "confusion_matrix": [
+      [
+        163,
+        0,
+        0
+      ],
+      [
+        0,
+        709,
+        11
+      ],
+      [
+        0,
+        10,
+        524
+      ]
+    ]
+  }
+}

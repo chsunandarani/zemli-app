@@ -1,0 +1,186 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="icon" href="/static/favicon.png">
+<title>Zemli crop check desk</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Figtree:wght@400;500;600&family=Noto+Sans+Telugu:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --leaf:#5EE07F; --leaf-soft:rgba(94,224,127,.13); --ink:#E9F5EC; --muted:#93AE9A; --line:rgba(120,210,145,.16);
+    --page:#07110C; --card:rgba(17,38,26,.85); --review:#F5B835; --review-soft:rgba(245,184,53,.13); --sick:#FF6A55; --sick-soft:rgba(255,106,85,.13);
+  }
+  *{box-sizing:border-box}
+  body{margin:0;font-family:Figtree,system-ui,sans-serif;color:var(--ink);font-size:15px;background:radial-gradient(1000px 560px at 90% -10%,#173B26 0%,transparent 60%),var(--page);background-attachment:fixed;color-scheme:dark}
+  .te{font-family:"Noto Sans Telugu",Figtree,sans-serif}
+  header{display:flex;flex-wrap:wrap;gap:12px 20px;align-items:center;padding:14px 22px;background:rgba(6,14,10,.92);border-bottom:1px solid var(--line);color:var(--ink)}
+  header h1{font-size:17px;font-weight:700;margin:0;flex:1 1 auto;color:var(--leaf);letter-spacing:.04em}
+  .live{display:flex;align-items:center;gap:8px;font-size:13px}
+  .dot{width:9px;height:9px;border-radius:50%;background:#C9D6C2}
+  .dot.on{background:#5EE07F;box-shadow:0 0 8px #5EE07F}
+  select{font:inherit;padding:6px 8px;border-radius:6px;border:1px solid var(--line);background:#0A1912;color:var(--ink)}
+  main{display:grid;grid-template-columns:minmax(280px,380px) 1fr;min-height:calc(100vh - 58px)}
+  #queue{border-right:1px solid var(--line);overflow-y:auto;max-height:calc(100vh - 58px)}
+  .counts{padding:12px 18px;color:var(--muted);font-size:13px;border-bottom:1px solid var(--line)}
+  .row{display:grid;grid-template-columns:64px 1fr;gap:12px;padding:12px 18px;border-bottom:1px solid var(--line);cursor:pointer;background:transparent;border-left:3px solid transparent;width:100%;text-align:left;font:inherit;color:inherit;border-top:0;border-right:0}
+  .row:hover{background:rgba(94,224,127,.05)}
+  .row.sel{background:var(--card);border-left-color:var(--leaf);box-shadow:inset 0 0 18px rgba(94,224,127,.08)}
+  .row.new{animation:flash 1.6s ease-out}
+  @keyframes flash{from{background:var(--review-soft)}to{background:transparent}}
+  @media (prefers-reduced-motion:reduce){.row.new{animation:none}}
+  .row img{width:64px;height:64px;object-fit:cover;border-radius:6px;background:var(--line)}
+  .row b{font-weight:600}
+  .meta{color:var(--muted);font-size:13px;margin-top:2px}
+  .tag{display:inline-block;font-size:12px;padding:2px 8px;border-radius:20px;margin-top:6px}
+  .tag.needs_review{background:var(--review-soft);color:var(--review)}
+  .tag.auto_healthy,.tag.verified{background:var(--leaf-soft);color:var(--leaf)}
+  .tag.rejected{background:var(--sick-soft);color:var(--sick)}
+  #detail{padding:24px 28px;overflow-y:auto;max-height:calc(100vh - 58px)}
+  .empty{color:var(--muted);max-width:420px;margin-top:40px;line-height:1.6}
+  .d-grid{display:grid;grid-template-columns:minmax(260px,460px) 1fr;gap:28px;align-items:start}
+  .photo{width:100%;border-radius:10px;background:var(--line);display:block}
+  h2{font-size:22px;font-weight:600;margin:0 0 4px}
+  .sub{color:var(--muted);margin:0 0 18px}
+  .bar{margin:10px 0}
+  .bar span{display:flex;justify-content:space-between;font-size:14px}
+  .track{height:8px;background:#12261A;border-radius:4px;margin-top:4px;overflow:hidden}
+  .fill{height:100%;background:var(--leaf);box-shadow:0 0 8px var(--leaf)}
+  .fill.low{background:var(--review)}
+  .advice{background:var(--card);border:1px solid rgba(94,224,127,.45);box-shadow:0 0 18px rgba(94,224,127,.12);border-radius:10px;padding:14px 16px;margin:18px 0;line-height:1.6}
+  .advice p{margin:0 0 8px}
+  fieldset{border:0;padding:0;margin:18px 0 0}
+  legend{font-weight:600;margin-bottom:8px}
+  .labels{display:flex;flex-wrap:wrap;gap:8px}
+  .labels label{border:1px solid var(--line);background:var(--card);border-radius:20px;padding:7px 12px;cursor:pointer;font-size:14px}
+  .labels input{position:absolute;opacity:0}
+  .labels input:checked + span{color:var(--leaf);font-weight:600}
+  .labels label:has(input:checked){border-color:var(--leaf);background:var(--leaf-soft)}
+  .labels label:has(input:focus-visible){outline:2px solid var(--leaf);outline-offset:2px}
+  textarea,input[type=text]{width:100%;font:inherit;padding:8px 10px;border:1px solid var(--line);border-radius:8px;margin-top:10px;background:#0A1912;color:var(--ink)}
+  button.primary{margin-top:14px;font:inherit;font-weight:600;background:var(--leaf);color:#03130A;border:0;border-radius:10px;padding:10px 18px;cursor:pointer;box-shadow:0 0 18px rgba(94,224,127,.3)}
+  button.primary:disabled{opacity:.5;cursor:default}
+  button:focus-visible,select:focus-visible{outline:2px solid var(--ink);outline-offset:2px}
+  .err{color:var(--sick);font-size:14px;margin-top:8px}
+  a{color:var(--leaf)}
+  @media (max-width:860px){main{grid-template-columns:1fr}#queue,#detail{max-height:none}.d-grid{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+<header>
+  <img src="/static/logo-mark.png" alt="" style="width:36px;height:36px;border-radius:50%;background:#fff;padding:3px;flex:none"><h1>ZEMLI · Crop check desk</h1>
+  <select id="fCrop" aria-label="Filter by crop"><option value="">All crops</option></select>
+  <select id="fStatus" aria-label="Filter by status">
+    <option value="needs_review">Needs review</option>
+    <option value="">All scans</option>
+    <option value="verified">Verified</option>
+    <option value="auto_healthy">Healthy (auto)</option>
+    <option value="rejected">Not this crop</option>
+  </select>
+  <div class="live"><span class="dot" id="dot"></span><span id="liveText">Connecting…</span></div>
+</header>
+<main>
+  <section id="queue" aria-label="Scans"><div class="counts" id="counts">Loading scans…</div><div id="rows"></div></section>
+  <section id="detail"><p class="empty">Pick a scan on the left to check the photo and confirm the diagnosis. New scans from the field appear here as soon as they upload.</p></section>
+</main>
+<script>
+const KEY_NAME='zemli_api_key';
+let apiKey=localStorage.getItem(KEY_NAME)||'';
+let crops={}, scans=[], selectedId=null;
+const $=s=>document.querySelector(s);
+const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+
+async function api(path,opts={}){
+  const r=await fetch(path,{...opts,headers:{'Content-Type':'application/json','X-Api-Key':apiKey,...(opts.headers||{})}});
+  if(r.status===401){apiKey=prompt('Enter the Zemli API key')||'';localStorage.setItem(KEY_NAME,apiKey);return api(path,opts);}
+  if(!r.ok){throw new Error((await r.json().catch(()=>({}))).detail||r.statusText);}
+  return r.json();
+}
+const cropName=id=>crops[id]?crops[id].name_en:id;
+const labelName=(crop,l)=>{if(!l)return'Not sure';if(l==='unclear_photo')return'Unclear photo';if(l==='not_this_crop')return'Not this crop';const t=l.replaceAll('_',' ');return t[0].toUpperCase()+t.slice(1);};
+function ago(iso){if(!iso)return'';const m=Math.round((Date.now()-new Date(iso))/60000);return m<1?'just now':m<60?m+' min ago':m<1440?Math.round(m/60)+' h ago':new Date(iso).toLocaleDateString();}
+const statusText={needs_review:'Needs review',auto_healthy:'Healthy (auto)',rejected:'Not this crop',verified:'Verified'};
+
+function visible(){
+  const c=$('#fCrop').value,s=$('#fStatus').value;
+  return scans.filter(x=>(!c||x.crop===c)&&(!s||x.status===s));
+}
+function renderList(newId){
+  const v=visible();
+  const pending=scans.filter(x=>x.status==='needs_review').length;
+  $('#counts').textContent=`${v.length} shown, ${pending} waiting for review`;
+  $('#rows').innerHTML=v.length?v.map(s=>`
+    <button class="row ${s.id===selectedId?'sel':''} ${s.id===newId?'new':''}" data-id="${s.id}">
+      <img src="${esc(s.image_url)}" alt="" loading="lazy">
+      <div><b>${esc(s.result.name_en)}</b>${s.server_confidence!=null&&!s.final_label?` <span class="meta">${Math.round(s.server_confidence*100)}%</span>`:''}
+        <div class="meta">${esc(cropName(s.crop))}, ${esc(s.employee_id)}, ${ago(s.received_at)}</div>
+        <span class="tag ${s.status}">${statusText[s.status]}</span></div>
+    </button>`).join(''):`<p class="counts">Nothing here. Scans will appear as soon as field staff upload them.</p>`;
+  document.querySelectorAll('.row').forEach(b=>b.onclick=()=>{selectedId=+b.dataset.id;renderList();renderDetail();});
+}
+function renderDetail(){
+  const s=scans.find(x=>x.id===selectedId);
+  if(!s){return;}
+  const labels=[...(crops[s.crop]?.classes||[]),'unclear_photo','not_this_crop'];
+  const preselect=s.final_label||(s.status==='rejected'?'not_this_crop':s.server_label)||'';
+  const gateNote=s.gate_label?`<p class="sub">Crop check: looks like <b>${esc(s.gate_label==='other'?'not a related leaf':cropName(s.gate_label))}</b> (${Math.round(s.gate_confidence*100)}%)${s.status==='rejected'?'. The disease model was not run. If the crop check is wrong, pick the right diagnosis below.':''}</p>`:'';
+  const srcNote=s.source==='upload'?`<p class="sub"><span class="tag rejected">Uploaded file</span> not taken with the live camera${s.captured_at?'':' · no date saved in the photo'}</p>`:'';
+  const bars=s.status==='rejected'?'':s.top_predictions.length?s.top_predictions.map(p=>`
+      <div class="bar"><span><span>${esc(labelName(s.crop,p.label))}</span><span>${Math.round(p.confidence*100)}%</span></span>
+      <div class="track"><div class="fill ${p.confidence<0.7?'low':''}" style="width:${p.confidence*100}%"></div></div></div>`).join('')
+      :`<p class="sub">No model for ${esc(cropName(s.crop))} yet. Please label this photo by eye; it will be used for training.</p>`;
+  const gps=s.latitude!=null?`<a href="https://www.google.com/maps?q=${s.latitude},${s.longitude}" target="_blank" rel="noopener">Open location in Maps</a>`:'No GPS recorded';
+  $('#detail').innerHTML=`
+    <div class="d-grid">
+      <div><img class="photo" src="${esc(s.image_url)}" alt="Leaf photo from field"><p class="meta">${gps}<br>Taken ${s.captured_at?new Date(s.captured_at).toLocaleString():'(time not recorded)'}${s.farmer_id?`, farmer ${esc(s.farmer_id)}`:''}</p></div>
+      <div>
+        <h2>${esc(s.result.name_en)}</h2>
+        <p class="sub">${esc(cropName(s.crop))}, ${statusText[s.status]}${s.reviewer?` by ${esc(s.reviewer)}`:''}</p>
+        ${srcNote}${gateNote}${bars}
+        <div class="advice"><p>${esc(s.result.advice_en)}</p><p class="te">${esc(s.result.advice_te)}</p></div>
+        <fieldset><legend>Your diagnosis</legend>
+          <div class="labels">${labels.map(l=>`<label><input type="radio" name="lab" value="${l}" ${l===preselect?'checked':''}><span>${esc(labelName(s.crop,l))}</span></label>`).join('')}</div>
+        </fieldset>
+        <input type="text" id="reviewer" placeholder="Your name" value="${esc(localStorage.getItem('zemli_reviewer')||'')}" aria-label="Your name">
+        <textarea id="note" rows="2" placeholder="Note for the field team (optional)">${esc(s.review_note||'')}</textarea>
+        <button class="primary" id="confirm">Confirm diagnosis</button>
+        <div class="err" id="err" role="alert"></div>
+      </div>
+    </div>`;
+  $('#confirm').onclick=async()=>{
+    const lab=document.querySelector('input[name=lab]:checked')?.value, who=$('#reviewer').value.trim();
+    if(!lab){$('#err').textContent='Choose a diagnosis first.';return;}
+    if(!who){$('#err').textContent='Enter your name so the field team knows who checked it.';return;}
+    localStorage.setItem('zemli_reviewer',who);
+    $('#confirm').disabled=true;
+    try{upsert(await api(`/api/scans/${s.id}/review`,{method:'POST',body:JSON.stringify({final_label:lab,reviewer:who,note:$('#note').value.trim()||null})}));}
+    catch(e){$('#err').textContent='Could not save: '+e.message;$('#confirm').disabled=false;}
+  };
+}
+function upsert(scan,isNew){
+  const i=scans.findIndex(x=>x.id===scan.id);
+  if(i>=0)scans[i]=scan;else scans.unshift(scan);
+  renderList(isNew?scan.id:null);
+  if(scan.id===selectedId)renderDetail();
+}
+function connect(){
+  const proto=location.protocol==='https:'?'wss':'ws';
+  const ws=new WebSocket(`${proto}://${location.host}/ws?role=dashboard&key=${encodeURIComponent(apiKey)}`);
+  ws.onopen=()=>{$('#dot').classList.add('on');$('#liveText').textContent='Live';ws._ping=setInterval(()=>ws.send('ping'),25000);};
+  ws.onmessage=e=>{const m=JSON.parse(e.data);upsert(m.scan,m.type==='scan_created');};
+  ws.onclose=()=>{clearInterval(ws._ping);$('#dot').classList.remove('on');$('#liveText').textContent='Reconnecting…';setTimeout(()=>{load();connect();},3000);};
+}
+async function load(){
+  try{scans=await api('/api/scans?limit=300');renderList();renderDetail();}
+  catch(e){$('#counts').textContent='Could not load scans: '+e.message;}
+}
+(async()=>{
+  const c=await api('/api/crops');
+  c.crops.forEach(x=>{crops[x.id]=x;$('#fCrop').insertAdjacentHTML('beforeend',`<option value="${x.id}">${esc(x.name_en)}</option>`);});
+  $('#fCrop').onchange=$('#fStatus').onchange=()=>renderList();
+  await load();connect();
+})();
+</script>
+</body>
+</html>

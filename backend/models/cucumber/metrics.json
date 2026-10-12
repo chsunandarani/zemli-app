@@ -1,0 +1,94 @@
+{
+  "crop": "cucumber",
+  "arch": "efficientnet_b0",
+  "classes": [
+    "anthracnose",
+    "downy_mildew",
+    "healthy"
+  ],
+  "train_images": 1300,
+  "val": {
+    "images": 162,
+    "accuracy": 1.0,
+    "macro_f1": 1.0,
+    "per_class": {
+      "anthracnose": {
+        "precision": 1.0,
+        "recall": 1.0,
+        "f1": 1.0,
+        "support": 53
+      },
+      "downy_mildew": {
+        "precision": 1.0,
+        "recall": 1.0,
+        "f1": 1.0,
+        "support": 56
+      },
+      "healthy": {
+        "precision": 1.0,
+        "recall": 1.0,
+        "f1": 1.0,
+        "support": 53
+      }
+    },
+    "confusion_matrix": [
+      [
+        53,
+        0,
+        0
+      ],
+      [
+        0,
+        56,
+        0
+      ],
+      [
+        0,
+        0,
+        53
+      ]
+    ]
+  },
+  "test_public": {
+    "images": 164,
+    "accuracy": 1.0,
+    "macro_f1": 1.0,
+    "per_class": {
+      "anthracnose": {
+        "precision": 1.0,
+        "recall": 1.0,
+        "f1": 1.0,
+        "support": 54
+      },
+      "downy_mildew": {
+        "precision": 1.0,
+        "recall": 1.0,
+        "f1": 1.0,
+        "support": 57
+      },
+      "healthy": {
+        "precision": 1.0,
+        "recall": 1.0,
+        "f1": 1.0,
+        "support": 53
+      }
+    },
+    "confusion_matrix": [
+      [
+        54,
+        0,
+        0
+      ],
+      [
+        0,
+        57,
+        0
+      ],
+      [
+        0,
+        0,
+        53
+      ]
+    ]
+  }
+}

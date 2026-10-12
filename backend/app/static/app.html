@@ -1,0 +1,791 @@
+<!doctype html>
+<html lang="te">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#07110C">
+<title>Zemli Agritech</title>
+<link rel="manifest" href="/static/manifest.webmanifest">
+<link rel="icon" href="/static/favicon.png">
+<link rel="apple-touch-icon" href="/static/icon-192.png">
+<link href="https://fonts.googleapis.com/css2?family=Figtree:wght@400;500;600;700&family=Noto+Sans+Telugu:wght@400;600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#07110C;--panel:#0E1E15;--card:rgba(17,38,26,.82);--card2:rgba(12,28,19,.9);--line:rgba(120,210,145,.16);
+    --glow:#5EE07F;--glow-deep:#2FA552;--glow-a:rgba(94,224,127,.5);--glow-s:rgba(94,224,127,.13);
+    --ink:#E9F5EC;--ink2:#CFE3D4;--muted:#93AE9A;--dim:#647F6C;
+    --gold:#F5B835;--gold-s:rgba(245,184,53,.13);--red:#FF6A55;--red-a:rgba(255,106,85,.55);--red-s:rgba(255,106,85,.13);
+  }
+  *{box-sizing:border-box}
+  html,body{min-height:100%}
+  body{margin:0;font-family:Figtree,"Noto Sans Telugu",system-ui,sans-serif;color:var(--ink);font-size:16px;line-height:1.45;
+    background:radial-gradient(900px 520px at 85% -8%,#18402A 0%,transparent 62%),radial-gradient(700px 480px at -15% 35%,#10301E 0%,transparent 60%),var(--bg);background-attachment:fixed}
+  .hidden{display:none!important}
+  a{color:var(--glow)}
+
+  /* ---------- header + nav ---------- */
+  header{position:sticky;top:0;z-index:5;background:rgba(7,17,12,.88);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);
+    border-bottom:1px solid var(--line);padding:calc(10px + env(safe-area-inset-top)) 14px 10px;display:flex;align-items:center;gap:10px}
+  header .hlogo{width:38px;height:38px;border-radius:50%;background:#fff;padding:3px;flex:none;box-shadow:0 0 14px var(--glow-s)}
+  header h1{flex:1;margin:0;line-height:1.15;font-size:16px}
+  header h1 b{display:block;color:var(--glow);font-weight:700;letter-spacing:.07em;font-size:15px;text-shadow:0 0 12px rgba(94,224,127,.35)}
+  header h1 small{color:var(--muted);font-weight:400;font-size:13px}
+  header button{background:transparent;border:1px solid var(--line);color:var(--ink2);border-radius:10px;padding:7px 11px;font:inherit;font-size:13px}
+  .dot{width:9px;height:9px;border-radius:50%;background:var(--dim);flex:none}.dot.on{background:var(--glow);box-shadow:0 0 10px var(--glow)}
+  main{padding:16px 14px calc(96px + env(safe-area-inset-bottom));max-width:640px;margin:0 auto}
+  nav.tabs{position:fixed;left:0;right:0;bottom:0;z-index:5;background:rgba(6,14,10,.96);border-top:1px solid var(--line);display:flex;padding:4px 4px env(safe-area-inset-bottom)}
+  nav.tabs button{flex:1;border:0;background:none;padding:8px 2px 7px;font:inherit;color:var(--dim);display:flex;flex-direction:column;align-items:center;gap:2px;border-radius:12px;position:relative}
+  nav.tabs button svg{width:24px;height:24px}
+  nav.tabs button span{font-size:12px;line-height:1.2}
+  nav.tabs button small{font-size:10px;opacity:.8}
+  nav.tabs button.on{color:var(--glow)}
+  nav.tabs button.on svg{filter:drop-shadow(0 0 6px rgba(94,224,127,.7))}
+  nav.tabs button.on::before{content:"";position:absolute;top:-5px;left:30%;right:30%;height:3px;border-radius:3px;background:var(--glow);box-shadow:0 0 10px var(--glow)}
+
+  /* ---------- type ---------- */
+  .screen-title{font-size:21px;font-weight:600;color:var(--ink2);margin:2px 0 14px;line-height:1.3}
+  .screen-title small{display:block;font-size:14px;font-weight:400;color:var(--muted)}
+  h3{font-size:16px;font-weight:600;color:var(--ink2);margin:20px 0 10px}
+  .muted{color:var(--muted);font-size:14px}
+  .money{font-variant-numeric:tabular-nums}
+  .g{color:var(--glow)}.r{color:var(--red)}.y{color:var(--gold)}
+
+  /* ---------- surfaces ---------- */
+  .card{background:var(--card);border:1px solid var(--line);border-radius:18px;padding:16px;margin-bottom:12px}
+  .glow{border-color:var(--glow-a);box-shadow:0 0 0 1px rgba(94,224,127,.06),0 0 24px rgba(94,224,127,.16),inset 0 0 26px rgba(94,224,127,.05)}
+  .glow-red{border-color:var(--red-a);box-shadow:0 0 22px rgba(255,106,85,.14),inset 0 0 24px rgba(255,106,85,.05);background:linear-gradient(180deg,rgba(60,18,14,.55),rgba(30,14,12,.7))}
+  .glow-gold{border-color:rgba(245,184,53,.5);box-shadow:0 0 22px rgba(245,184,53,.12)}
+  .row{display:flex;align-items:center;gap:12px}
+  .grow{flex:1;min-width:0}
+  .kv{display:flex;justify-content:space-between;align-items:baseline;gap:12px;padding:9px 0;border-bottom:1px solid var(--line);font-size:15px}
+  .kv:last-child{border:0}
+  .kv span{color:var(--muted)}
+  .big{font-size:30px;font-weight:700;letter-spacing:-.01em}
+  .bar{height:9px;background:#163022;border-radius:6px;overflow:hidden;margin:10px 0 4px}
+  .bar div{height:100%;background:var(--glow);box-shadow:0 0 12px var(--glow)}
+  .tiles{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:12px}
+  .tile{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:14px}
+  .tile .label{font-size:13px;color:var(--muted)}
+  .tile .val{font-size:24px;font-weight:700;margin-top:4px}
+  .pill{display:inline-flex;align-items:center;gap:8px;border-radius:30px;padding:8px 14px;font-size:14px;font-weight:600;border:1px solid var(--line);background:var(--card2)}
+  .pill.on{border-color:var(--glow-a);color:var(--glow);box-shadow:0 0 16px rgba(94,224,127,.2)}
+  .pill.off{color:var(--muted)}
+  .pill.bad{border-color:var(--red-a);color:var(--red)}
+  .pill svg{width:18px;height:18px}
+  .tag{display:inline-block;font-size:12px;padding:3px 9px;border-radius:20px;background:var(--glow-s);color:var(--glow);font-weight:500}
+  .tag.warn{background:var(--gold-s);color:var(--gold)}.tag.bad{background:var(--red-s);color:var(--red)}
+
+  /* ---------- controls ---------- */
+  .btn{display:flex;align-items:center;justify-content:center;gap:8px;width:100%;min-height:52px;border-radius:14px;font:inherit;font-weight:600;border:0;margin-top:10px;padding:12px;cursor:pointer}
+  .primary{background:var(--glow);color:#03130A;box-shadow:0 0 22px rgba(94,224,127,.35)}
+  .ghost{background:transparent;color:var(--glow);border:1px solid var(--glow-a)}
+  .btn:disabled{opacity:.45;box-shadow:none}
+  .btn svg{width:20px;height:20px}
+  label{display:block;margin-top:12px;font-size:14px;color:var(--muted)}
+  input,select{width:100%;font:inherit;padding:12px;border:1px solid var(--line);border-radius:12px;margin-top:6px;background:#0A1912;color:var(--ink)}
+  input::placeholder{color:var(--dim)}
+  input:focus,select:focus{outline:none;border-color:var(--glow-a);box-shadow:0 0 0 3px var(--glow-s)}
+  .seg{display:flex;gap:8px;margin-top:6px}
+  .seg label{flex:1;margin:0;border:1px solid var(--line);border-radius:12px;padding:11px;background:var(--card2);color:var(--ink);font-size:14px;cursor:pointer}
+  .seg input{width:auto;margin:0 6px 0 0;accent-color:var(--glow)}
+  .seg label:has(input:checked){border-color:var(--glow-a);box-shadow:0 0 14px rgba(94,224,127,.18)}
+  .chips{display:flex;gap:8px;overflow-x:auto;padding:2px 2px 12px;margin:0 -2px;scrollbar-width:none}
+  .chips::-webkit-scrollbar{display:none}
+  .chips button{flex:none;border:1px solid var(--line);background:var(--card2);border-radius:20px;padding:8px 14px;font:inherit;font-size:14px;color:var(--ink2)}
+  .chips button.on{border-color:var(--glow-a);color:var(--glow);box-shadow:0 0 14px rgba(94,224,127,.22)}
+  .chips button small{opacity:.7;margin-left:4px}
+  button:focus-visible,input:focus-visible,select:focus-visible,a:focus-visible{outline:2px solid var(--glow);outline-offset:2px}
+
+  /* ---------- employee: farmers ---------- */
+  .group-head{display:flex;align-items:baseline;justify-content:space-between;gap:10px;margin-bottom:10px}
+  .group-head b{color:var(--glow);font-weight:600}
+  .farmer{display:block;width:100%;text-align:left;background:var(--card);border:1px solid var(--line);border-radius:18px;padding:14px;margin-bottom:10px;font:inherit;color:inherit}
+  .farmer:active{border-color:var(--glow-a)}
+  .avatar{width:48px;height:48px;border-radius:50%;background:radial-gradient(circle at 35% 30%,#2E6E45,#143823);color:#DDF7E4;display:grid;place-items:center;font-weight:700;font-size:19px;flex:none;border:1px solid var(--glow-a)}
+  .farmer .name{font-size:18px;font-weight:600}
+  .verif{display:inline-flex;align-items:center;gap:5px;font-size:13px;color:var(--ink2)}
+  .verif i{width:15px;height:15px;border-radius:50%;background:var(--glow);display:inline-grid;place-items:center;color:#03130A;font-style:normal;font-size:10px;font-weight:700}
+  .farmer .meta{display:flex;justify-content:space-between;align-items:center;gap:8px;margin-top:10px;padding-top:10px;border-top:1px solid var(--line);font-size:14px;color:var(--muted)}
+  .farmer .meta b{color:var(--glow);font-weight:600}
+  .roundbtn{width:38px;height:38px;border-radius:50%;display:inline-grid;place-items:center;background:#173322;color:var(--ink2);border:1px solid var(--line);text-decoration:none;flex:none}
+  .roundbtn svg{width:18px;height:18px}
+
+  /* ---------- rings, charts ---------- */
+  .ringwrap{position:relative;width:min(250px,70vw);aspect-ratio:1;margin:6px auto 18px}
+  .ringwrap svg{width:100%;height:100%;transform:rotate(-90deg);overflow:visible}
+  .ringwrap .center{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:16%}
+  .ringwrap .center span{color:var(--ink2);font-size:14px}
+  .ringwrap .center b{font-size:34px;color:var(--glow);text-shadow:0 0 18px rgba(94,224,127,.45);margin:4px 0}
+  .ring-bg{fill:#0B1B12;stroke:#173322}
+  .ring-fg{fill:none;stroke:var(--glow);stroke-linecap:round;filter:drop-shadow(0 0 6px rgba(94,224,127,.8))}
+  .spark{width:100%;height:70px;display:block;margin-top:10px}
+  .bars{display:flex;align-items:flex-end;gap:5px;height:70px;margin-top:10px}
+  .bars div{flex:1;border-radius:4px 4px 0 0;background:#3B6E4A}
+  .bars div.hi{background:var(--glow);box-shadow:0 0 10px rgba(94,224,127,.5)}
+
+  /* ---------- ledger, payouts ---------- */
+  .ledger{background:var(--card);border:1px solid var(--glow-a);border-radius:16px;padding:14px 16px;margin-bottom:10px;box-shadow:0 0 16px rgba(94,224,127,.1)}
+  .ledger .top{display:flex;justify-content:space-between;gap:12px;align-items:flex-start}
+  .ledger .top b{font-size:17px;font-weight:600}
+  .ledger .amt{font-size:22px;font-weight:700;color:var(--glow);white-space:nowrap}
+  .ledger .sub{font-size:13px;color:var(--muted);margin-top:4px}
+  .ledger .sub em{font-style:normal;color:var(--ink2)}
+  .brand{display:flex;align-items:center;gap:12px}
+  .brand .mark{width:46px;height:46px;border-radius:50%;background:#F1E6C8;color:#2C5E1A;display:grid;place-items:center;font-weight:800;font-size:18px;flex:none}
+  .brand small{display:block;color:var(--muted);font-size:13px}
+  .brand b{font-size:19px}
+  .ded{display:flex;align-items:center;gap:10px;padding:8px 0;font-size:16px}
+  .ded svg{width:20px;height:20px;color:var(--red);flex:none}
+  .ded span{flex:1;min-width:0}
+  .ded b{margin-left:auto;color:var(--red);white-space:nowrap}
+  .netcard{border:2px solid var(--glow);border-radius:18px;padding:16px;background:rgba(10,30,18,.95);box-shadow:0 0 30px rgba(94,224,127,.3);display:flex;align-items:center;gap:14px;margin-top:12px}
+  .netcard .t{font-size:16px;color:var(--ink2)}
+  .netcard .v{font-size:28px;font-weight:700;color:var(--glow)}
+  .netcard svg{width:46px;height:46px;color:var(--glow);flex:none;filter:drop-shadow(0 0 8px rgba(94,224,127,.6))}
+
+  /* ---------- crop care ---------- */
+  .cropbtn{display:flex;align-items:center;gap:14px;width:100%;min-height:66px;margin-bottom:10px;padding:12px 16px;border:1px solid var(--line);border-radius:16px;background:var(--card);font:inherit;text-align:left;color:var(--ink)}
+  .cropbtn.auto{border-color:var(--glow-a);box-shadow:0 0 18px rgba(94,224,127,.18)}
+  .cropbtn b{display:block;font-size:18px}
+  .cropbtn span{color:var(--muted);font-size:14px}
+  .cropbtn b+*{color:var(--muted)}
+  .cropbtn svg{width:30px;height:30px;flex:none;color:var(--glow)}
+  .photo{width:100%;max-height:300px;object-fit:cover;border-radius:16px;background:#0B1B12;display:block;border:1px solid var(--line)}
+  .result-pill{display:block;border-radius:14px;padding:12px 14px;margin-top:12px;font-size:17px;border:1px solid}
+  .result-pill.bad{border-color:var(--red-a);background:var(--red-s);box-shadow:0 0 18px rgba(255,106,85,.2)}
+  .result-pill.bad .h{color:var(--red)}
+  .result-pill.ok{border-color:var(--glow-a);background:var(--glow-s);box-shadow:0 0 18px rgba(94,224,127,.18)}
+  .result-pill.ok .h{color:var(--glow)}
+  .result-pill.warn{border-color:rgba(245,184,53,.5);background:var(--gold-s)}
+  .result-pill.warn .h{color:var(--gold)}
+  .result-pill .te{display:block;font-size:20px;font-weight:600;margin-top:2px}
+  .action{margin-top:12px}
+  .action .head{display:flex;align-items:center;gap:12px;color:var(--ink);font-size:19px;font-weight:600}
+  .action .head svg{width:42px;height:42px;color:var(--glow);flex:none}
+  .action .te{color:var(--glow);font-size:18px;margin:10px 0 6px;line-height:1.55}
+  .carelog{display:grid;grid-template-columns:66px 1fr;gap:12px;padding:12px 0;border-bottom:1px solid var(--line)}
+  .carelog:last-child{border:0}
+  .carelog img{width:66px;height:66px;object-fit:cover;border-radius:12px;background:#0B1B12}
+
+  /* ---------- notices ---------- */
+  .notice{border-radius:16px;padding:13px 15px;margin-bottom:12px;line-height:1.5;border:1px solid}
+  .notice b{font-size:16px}
+  .notice.moisture{border-color:var(--red-a);background:var(--red-s)}
+  .notice.payment{border-color:var(--glow-a);background:var(--glow-s)}
+  .notice.disease{border-color:rgba(245,184,53,.5);background:var(--gold-s)}
+
+  /* ---------- field attendance ---------- */
+  .shutter-big{display:grid;place-items:center;margin:8px auto 4px;width:170px;height:170px;border-radius:50%;border:0;background:radial-gradient(circle,#173a25 0%,#0b1a11 70%);
+    box-shadow:0 0 0 10px rgba(94,224,127,.08),0 0 0 22px rgba(94,224,127,.04),0 0 40px rgba(94,224,127,.35),inset 0 0 0 3px var(--glow);color:var(--glow);font:inherit;cursor:pointer}
+  .shutter-big svg{width:62px;height:62px;filter:drop-shadow(0 0 10px rgba(94,224,127,.8))}
+  .shutter-big:active{transform:scale(.97)}
+  .center{text-align:center}
+  .cal{display:grid;grid-template-columns:repeat(7,1fr);gap:6px;margin-top:10px}
+  .cal .h{font-size:11px;color:var(--dim);text-align:center}
+  .cal .d{aspect-ratio:1;border-radius:10px;background:#0B1A12;border:1px solid var(--line);display:grid;place-items:center;font-size:13px;color:var(--dim)}
+  .cal .d.ok{border-color:var(--glow-a);color:var(--glow);background:rgba(94,224,127,.12);box-shadow:0 0 10px rgba(94,224,127,.18)}
+  .cal .d.part{border-color:rgba(245,184,53,.55);color:var(--gold);background:var(--gold-s)}
+  .cal .d.today{outline:2px solid var(--ink2);outline-offset:1px}
+  .visit{display:grid;grid-template-columns:76px 1fr;gap:12px;padding:12px 0;border-bottom:1px solid var(--line)}
+  .visit:last-child{border:0}
+  .visit img{width:76px;height:76px;object-fit:cover;border-radius:12px;background:#0B1A12}
+
+  /* ---------- camera ---------- */
+  #camView{position:fixed;inset:0;background:#000;z-index:20;display:flex;flex-direction:column}
+  #camView video{flex:1;width:100%;min-height:0;object-fit:cover}
+  .camchip{position:absolute;background:rgba(5,14,9,.72);color:#E9F5EC;border:1px solid rgba(255,255,255,.12);border-radius:10px;padding:7px 11px;font-size:14px;backdrop-filter:blur(6px)}
+  #camEmp{top:calc(14px + env(safe-area-inset-top));left:14px}
+  #camTime{top:calc(14px + env(safe-area-inset-top));right:14px;text-align:right;font-size:13px}
+  #camGps{left:14px;right:14px;bottom:calc(150px + env(safe-area-inset-bottom));font-size:13px}
+  .frame{position:absolute;left:50%;top:44%;width:min(62vw,300px);aspect-ratio:1;transform:translate(-50%,-50%);pointer-events:none}
+  .frame i{position:absolute;width:34px;height:34px;border:3px solid var(--glow);filter:drop-shadow(0 0 6px var(--glow))}
+  .frame i:nth-child(1){top:0;left:0;border-right:0;border-bottom:0;border-radius:10px 0 0 0}
+  .frame i:nth-child(2){top:0;right:0;border-left:0;border-bottom:0;border-radius:0 10px 0 0}
+  .frame i:nth-child(3){bottom:0;left:0;border-right:0;border-top:0;border-radius:0 0 0 10px}
+  .frame i:nth-child(4){bottom:0;right:0;border-left:0;border-top:0;border-radius:0 0 10px 0}
+  .frame b{position:absolute;left:50%;top:50%;width:46px;height:46px;transform:translate(-50%,-50%);border:2px solid var(--glow);border-radius:50%;filter:drop-shadow(0 0 6px var(--glow))}
+  .frame b::before,.frame b::after{content:"";position:absolute;background:var(--glow)}
+  .frame b::before{left:50%;top:-14px;bottom:-14px;width:2px;transform:translateX(-50%)}
+  .frame b::after{top:50%;left:-14px;right:-14px;height:2px;transform:translateY(-50%)}
+  .cambar{background:#05100A;padding:12px 20px calc(16px + env(safe-area-inset-bottom));text-align:center}
+  .cambar p{margin:0 0 10px;color:var(--ink2);font-size:14px}
+  .cambar .r3{display:flex;align-items:center;justify-content:space-between}
+  #shutter{width:78px;height:78px;border-radius:50%;border:0;background:radial-gradient(circle,#2a5a3a,#0d2016);box-shadow:0 0 0 4px var(--glow),0 0 26px rgba(94,224,127,.6);color:var(--ink);display:grid;place-items:center}
+  #shutter svg{width:36px;height:36px}
+  .smallw{background:transparent;color:var(--ink2);border:1px solid rgba(255,255,255,.2);border-radius:12px;padding:10px 14px;font:inherit;font-size:14px;min-width:88px}
+
+  /* ---------- sheet, toast, login ---------- */
+  .sheet-bg{position:fixed;inset:0;background:rgba(0,0,0,.6);z-index:15;display:flex;align-items:flex-end}
+  .sheet{background:#0B1912;border-top:1px solid var(--glow-a);box-shadow:0 -10px 40px rgba(94,224,127,.12);width:100%;max-height:92vh;overflow-y:auto;border-radius:22px 22px 0 0;padding:18px 16px calc(22px + env(safe-area-inset-bottom));max-width:640px;margin:0 auto}
+  .toast{position:fixed;left:12px;right:12px;bottom:calc(86px + env(safe-area-inset-bottom));z-index:30;background:#0F2A1B;border:1px solid var(--glow-a);color:var(--ink);padding:14px 16px;border-radius:14px;font-size:15px;box-shadow:0 0 24px rgba(94,224,127,.25);
+    transform:translateY(200%);transition:transform .25s,visibility .25s;max-width:600px;margin:0 auto;pointer-events:none;visibility:hidden}
+  .toast.show{transform:none;visibility:visible}
+  @media (prefers-reduced-motion:reduce){.toast{transition:none}.shutter-big:active{transform:none}}
+  .login{max-width:420px;margin:0 auto;padding:calc(34px + env(safe-area-inset-top)) 20px 30px;min-height:100vh}
+  .login .logo{width:min(250px,72vw);height:auto;display:block;margin:0 auto 14px;background:#fff;border-radius:22px;padding:8px;box-shadow:0 0 0 1px var(--glow-a),0 0 40px rgba(94,224,127,.25)}
+  .login p{text-align:center}
+  .demo{background:var(--gold-s);color:var(--gold);border:1px solid rgba(245,184,53,.4);border-radius:12px;padding:10px 12px;margin-top:12px;font-size:14px}
+  .err{color:var(--red);font-size:14px;margin-top:10px}
+  hr.soft{border:0;border-top:1px solid var(--line);margin:12px 0}
+</style>
+</head>
+<body>
+
+<section id="vLogin" class="login hidden">
+  <img class="logo" src="/static/logo-full-600.png" alt="Zemli Agritech: smart farms, stronger farmers, greener tomorrow">
+  <p class="muted">రైతులు మరియు Zemli ఉద్యోగుల కోసం<br>For farmers and Zemli employees</p>
+  <div id="stepPhone">
+    <label>మొబైల్ నంబర్ / Mobile number<input id="lPhone" type="tel" inputmode="numeric" maxlength="14" placeholder="98765 43210" autocomplete="tel"></label>
+    <button class="btn primary" id="lSend">OTP పంపండి / Send OTP</button>
+  </div>
+  <div id="stepCode" class="hidden">
+    <label>OTP కోడ్ / 6-digit code<input id="lCode" type="tel" inputmode="numeric" maxlength="6" autocomplete="one-time-code"></label>
+    <div id="lDemo" class="demo hidden"></div>
+    <button class="btn primary" id="lVerify">లాగిన్ / Log in</button>
+    <button class="btn ghost" id="lBack">నంబర్ మార్చండి / Change number</button>
+  </div>
+  <div class="err" id="lErr" role="alert"></div>
+</section>
+
+<header id="hdr" class="hidden">
+  <img class="hlogo" src="/static/logo-mark.png" alt="">
+  <h1 id="hTitle"><b>ZEMLI AGRI TECH</b></h1>
+  <span class="dot" id="dot" title="Connection"></span>
+  <button id="installBtn" class="hidden">Install</button>
+  <button id="logout">Logout</button>
+</header>
+<main id="main" class="hidden"></main>
+<nav class="tabs hidden" id="nav"></nav>
+
+<input type="file" id="filePick" accept="image/*" class="hidden">
+<div id="camView" class="hidden" role="dialog" aria-label="Camera">
+  <video id="video" playsinline muted autoplay></video>
+  <div class="frame" aria-hidden="true"><i></i><i></i><i></i><i></i><b></b></div>
+  <div class="camchip" id="camEmp"></div>
+  <div class="camchip" id="camTime"></div>
+  <div class="camchip" id="camGps">GPS…</div>
+  <div class="cambar">
+    <p id="camHint">ఒక ఆకు ఫ్రేమ్ నిండా వచ్చేలా తీయండి / Fill the frame with one leaf, then press capture</p>
+    <div class="r3"><button class="smallw" id="camCancel">Cancel</button>
+      <button id="shutter" aria-label="Take photo"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="9"/><path d="M12 3l3.5 6M21 12h-7M16.5 19.8L12.9 13.6M7.5 19.8l3.6-6.2M3 12h7M7.5 4.2l3.6 6.2"/></svg></button>
+      <span style="min-width:88px"></span></div>
+  </div>
+</div>
+<div id="sheet" class="sheet-bg hidden"><div class="sheet" id="sheetBody"></div></div>
+<div class="toast" id="toast" role="status"></div>
+
+<script>
+const $=s=>document.querySelector(s);
+const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const rs=n=>n==null?'-':'₹'+Number(n).toLocaleString('en-IN',{maximumFractionDigits:0});
+const day=iso=>iso?new Date(iso).toLocaleDateString('en-IN',{day:'numeric',month:'short',year:'numeric'}):'';
+const when=iso=>iso?new Date(iso).toLocaleString('en-IN',{day:'numeric',month:'short',hour:'numeric',minute:'2-digit'}):'';
+const icons={
+  home:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M3 11l9-7 9 7"/><path d="M5 10v10h14V10"/><path d="M10 20v-6h4v6"/></svg>',
+  people:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="9" cy="8" r="3.5"/><path d="M2.5 20c.8-3.6 3.4-5.5 6.5-5.5s5.7 1.9 6.5 5.5"/><circle cx="17" cy="9" r="2.5"/><path d="M16 14.6c2.6.1 4.6 1.8 5.3 4.9"/></svg>',
+  camera:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M4 8h3l2-3h6l2 3h3v11H4z"/><circle cx="12" cy="13" r="3.5"/></svg>',
+  pin:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M12 21s7-6.2 7-11.5A7 7 0 0 0 5 9.5C5 14.8 12 21 12 21z"/><circle cx="12" cy="9.5" r="2.5"/></svg>',
+  wallet:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M4 7h14a2 2 0 0 1 2 2v9a2 2 0 0 1-2 2H4z"/><path d="M4 7l11-3v3"/><path d="M15 13.5h5"/></svg>',
+  chart:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M4 20V10M9 20V6M14 20v-8M19 20V4"/></svg>',
+  sprout:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M12 21v-9"/><path d="M12 12c0-4 3-7 8-7 0 5-3 7-8 7z"/><path d="M12 14c0-3-2.5-5.5-7-5.5 0 4 2.5 5.5 7 5.5z"/></svg>',
+  rupee:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M7 5h10M7 9h10M7 5c5 0 6 2 6 4s-2 4-6 4l7 6"/></svg>',
+  leaf:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M5 19c0-8 5-13 14-14-1 9-6 14-14 14z"/><path d="M5 19l7-7"/></svg>',
+  image:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="3" y="4" width="18" height="16" rx="2"/><circle cx="9" cy="10" r="2"/><path d="M21 16l-5-5-9 9"/></svg>',
+  chip:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="7" y="7" width="10" height="10" rx="1.5"/><path d="M9 3v4M15 3v4M9 17v4M15 17v4M3 9h4M3 15h4M17 9h4M17 15h4"/></svg>',
+  phone:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M5 4h4l2 5-2.5 1.5a11 11 0 0 0 5 5L15 13l5 2v4a2 2 0 0 1-2 2A16 16 0 0 1 3 6a2 2 0 0 1 2-2"/></svg>',
+  arrow:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M5 12h14M13 6l6 6-6 6"/></svg>',
+  shield:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M12 3l8 3v6c0 5-3.5 8-8 9-4.5-1-8-4-8-9V6z"/><path d="M8.5 12l2.5 2.5 4.5-5"/></svg>',
+  spray:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M4 14h8l2 7H6z"/><path d="M8 14V9h4v5"/><path d="M12 10h4"/><path d="M18 7l2-1M18 10h2.5M18 13l2 1"/></svg>',
+  receipt:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M6 3h12v18l-3-2-3 2-3-2-3 2z"/><path d="M9 8h6M9 12h6"/></svg>',
+  bank:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M3 10l9-6 9 6"/><path d="M5 10v8M10 10v8M14 10v8M19 10v8M3 20h18"/></svg>',
+};
+let token=localStorage.getItem('zemli_token')||'', me=null, groups=[], curGroup=1, crops=[], autoOn=false;
+
+function toast(t){const el=$('#toast');el.textContent=t;el.classList.add('show');clearTimeout(el._t);el._t=setTimeout(()=>el.classList.remove('show'),6000);}
+async function api(path,opts={}){
+  const r=await fetch(path,{...opts,headers:{'Content-Type':'application/json',...(token?{Authorization:'Bearer '+token}:{}),...(opts.headers||{})}});
+  if(r.status===401&&token){logout(true);throw new Error('Please log in again');}
+  const j=await r.json().catch(()=>({}));
+  if(!r.ok)throw new Error(j.detail||('Server error '+r.status));
+  return j;
+}
+function sheet(html){$('#sheetBody').innerHTML=html;$('#sheet').classList.remove('hidden');}
+function closeSheet(){$('#sheet').classList.add('hidden');}
+$('#sheet').onclick=e=>{if(e.target.id==='sheet')closeSheet();};
+const title=(en,te)=>`<h2 class="screen-title">${en}${te?`<small>${te}</small>`:''}</h2>`;
+function ring(fraction,centerHtml){
+  const r=88,c=2*Math.PI*r,f=Math.max(0,Math.min(1,fraction));
+  return `<div class="ringwrap"><svg viewBox="0 0 200 200" aria-hidden="true"><circle class="ring-bg" cx="100" cy="100" r="${r}" stroke-width="14"/>
+    <circle class="ring-fg" cx="100" cy="100" r="${r}" stroke-width="14" stroke-dasharray="${c}" stroke-dashoffset="${c*(1-f)}"/></svg><div class="center">${centerHtml}</div></div>`;
+}
+function spark(vals,minV,maxV){
+  if(vals.length<2)return '<p class="muted">Not enough readings yet.</p>';
+  const lo=minV??Math.min(...vals), hi=maxV??Math.max(...vals), span=(hi-lo)||1, W=300,H=70;
+  const pts=vals.map((v,i)=>[i/(vals.length-1)*W, H-6-((v-lo)/span)*(H-14)]);
+  const d=pts.map((p,i)=>(i?'L':'M')+p[0].toFixed(1)+' '+p[1].toFixed(1)).join(' ');
+  return `<svg class="spark" viewBox="0 0 ${W} ${H}" preserveAspectRatio="none" aria-hidden="true">
+    <path d="${d} L${W} ${H} L0 ${H} Z" fill="rgba(94,224,127,.14)"/><path d="${d}" fill="none" stroke="#5EE07F" stroke-width="2.5" vector-effect="non-scaling-stroke" style="filter:drop-shadow(0 0 4px rgba(94,224,127,.8))"/></svg>`;
+}
+
+/* ======================= LOGIN ======================= */
+function showLogin(){
+  ['hdr','main','nav'].forEach(id=>$('#'+id).classList.add('hidden'));
+  $('#vLogin').classList.remove('hidden');$('#stepPhone').classList.remove('hidden');$('#stepCode').classList.add('hidden');$('#lErr').textContent='';
+}
+$('#lSend').onclick=async()=>{
+  $('#lErr').textContent='';$('#lSend').disabled=true;
+  try{
+    const r=await api('/api/auth/request-otp',{method:'POST',body:JSON.stringify({phone:$('#lPhone').value})});
+    $('#stepPhone').classList.add('hidden');$('#stepCode').classList.remove('hidden');$('#lCode').value='';$('#lCode').focus();
+    if(r.demo_otp){$('#lDemo').classList.remove('hidden');$('#lDemo').textContent=`Demo mode (no SMS yet): your code is ${r.demo_otp}`;}
+    else $('#lDemo').classList.add('hidden');
+  }catch(e){$('#lErr').textContent=e.message;}
+  $('#lSend').disabled=false;
+};
+$('#lVerify').onclick=async()=>{
+  $('#lErr').textContent='';$('#lVerify').disabled=true;
+  try{
+    const r=await api('/api/auth/verify',{method:'POST',body:JSON.stringify({phone:$('#lPhone').value,code:$('#lCode').value})});
+    token=r.token;localStorage.setItem('zemli_token',token);await start();
+  }catch(e){$('#lErr').textContent=e.message;}
+  $('#lVerify').disabled=false;
+};
+$('#lBack').onclick=showLogin;
+async function logout(expired){
+  if(!expired)try{await api('/api/auth/logout',{method:'POST'});}catch(e){}
+  token='';localStorage.removeItem('zemli_token');localStorage.removeItem('zemli_cache');try{ws&&ws.close();}catch(e){}
+  showLogin();if(expired)$('#lErr').textContent='Your login expired. Please log in again.';
+}
+$('#logout').onclick=()=>{if(confirm('Log out?'))logout(false);};
+
+function shell(sub,tabs){
+  $('#vLogin').classList.add('hidden');['hdr','main','nav'].forEach(id=>$('#'+id).classList.remove('hidden'));
+  $('#hTitle').innerHTML=`<b>ZEMLI AGRI TECH</b><small>${esc(sub)}</small>`;
+  $('#nav').innerHTML=tabs.map(t=>`<button data-v="${t.v}">${icons[t.i]}<span>${t.l}</span><small>${t.en}</small></button>`).join('');
+  $('#nav').querySelectorAll('button').forEach(b=>b.onclick=()=>go(b.dataset.v));
+}
+let views={}, curView='';
+function go(v){curView=v;$('#nav').querySelectorAll('button').forEach(b=>b.classList.toggle('on',b.dataset.v===v));window.scrollTo(0,0);views[v]();}
+
+/* ======================= OFFLINE QUEUE (scans + field photos) ======================= */
+let dbp=null;
+function db(){return dbp??=new Promise((res,rej)=>{const r=indexedDB.open('zemli-app',1);r.onupgradeneeded=()=>r.result.createObjectStore('queue',{keyPath:'client_id'});r.onsuccess=()=>res(r.result);r.onerror=()=>rej(r.error);});}
+async function qop(mode,fn){const d=await db();return new Promise((res,rej)=>{const t=d.transaction('queue',mode);const r=fn(t.objectStore('queue'));t.oncomplete=()=>res(r?.result);t.onerror=()=>rej(t.error);});}
+const qAdd=i=>qop('readwrite',s=>s.put(i)), qDel=id=>qop('readwrite',s=>s.delete(id)), qAll=()=>qop('readonly',s=>s.getAll());
+async function upload(item){
+  const f=new FormData();
+  for(const [k,v] of Object.entries(item.fields)) if(v!==null&&v!==undefined&&v!=='') f.append(k,v);
+  f.append('image',item.blob,'photo.jpg');
+  const url=item.kind==='field'?'/api/emp/field-visit':'/api/scans';
+  const r=await fetch(url,{method:'POST',body:f,headers:{Authorization:'Bearer '+token}});
+  if(r.status===401)throw new Error('Please log in again');
+  if(!r.ok)throw Object.assign(new Error((await r.json().catch(()=>({}))).detail||'Server error'),{fatal:r.status===400||r.status===413});
+  return r.json();
+}
+let flushing=false;
+async function flush(){
+  if(flushing||!token||!me)return;flushing=true;
+  try{for(const it of await qAll()){if(it.kind==='field'&&me.role!=='employee')continue;try{await upload(it);await qDel(it.client_id);}catch(e){if(e.fatal)await qDel(it.client_id);else break;}}}
+  finally{flushing=false;}
+}
+window.addEventListener('online',flush);setInterval(flush,30000);
+
+/* ======================= LIVE GPS CAMERA ======================= */
+let stream=null, gps=null, gpsWatch=null, camResolve=null, clock=null;
+function startGps(){
+  gps=null;$('#camGps').textContent='GPS వెతుకుతోంది… / Finding GPS…';
+  if(!navigator.geolocation){$('#camGps').textContent='No GPS on this device';return;}
+  gpsWatch=navigator.geolocation.watchPosition(p=>{gps=p.coords;$('#camGps').textContent=`📡 Geo-tagged GPS: ${gps.latitude.toFixed(5)}°N, ${gps.longitude.toFixed(5)}°E · ±${Math.round(gps.accuracy)} m`;},
+    ()=>{$('#camGps').textContent='GPS ఆఫ్‌లో ఉంది. లొకేషన్ ఆన్ చేయండి / Turn on location';},{enableHighAccuracy:true,maximumAge:10000,timeout:20000});
+}
+function stopCam(){stream?.getTracks().forEach(t=>t.stop());stream=null;if(gpsWatch!=null)navigator.geolocation.clearWatch(gpsWatch);gpsWatch=null;clearInterval(clock);$('#camView').classList.add('hidden');}
+function liveCamera(mode){
+  return new Promise(async(resolve)=>{
+    if(!navigator.mediaDevices?.getUserMedia||!window.isSecureContext){toast('Camera needs the secure (https) app address.');resolve(null);return;}
+    try{stream=await navigator.mediaDevices.getUserMedia({video:{facingMode:{ideal:'environment'},width:{ideal:1920},height:{ideal:1080}},audio:false});}
+    catch(e){toast(e.name==='NotAllowedError'?'Allow camera permission for Zemli and try again.':'Camera not available on this device.');resolve(null);return;}
+    $('#camEmp').textContent=me.role==='employee'?`Employee ID: ${me.scan_id}`:`Farmer: ${me.name}`;
+    $('#camHint').textContent=mode==='field'?'పొలంలో ఉండి ఫోటో తీయండి / Take the daily field photo at the farm, then press capture':'ఒక ఆకు ఫ్రేమ్ నిండా వచ్చేలా తీయండి / Fill the frame with one leaf, then press capture';
+    const tick=()=>{const n=new Date();$('#camTime').innerHTML=`${n.toLocaleDateString('en-IN',{day:'numeric',month:'short',year:'numeric'})}<br>${n.toLocaleTimeString('en-IN',{hour:'numeric',minute:'2-digit'})} IST`;};
+    tick();clock=setInterval(tick,15000);
+    $('#video').srcObject=stream;$('#camView').classList.remove('hidden');startGps();camResolve=resolve;
+  });
+}
+$('#shutter').onclick=()=>{
+  const v=$('#video');if(!v.videoWidth)return;
+  const s=Math.min(1,1600/Math.max(v.videoWidth,v.videoHeight));
+  const c=document.createElement('canvas');c.width=Math.round(v.videoWidth*s);c.height=Math.round(v.videoHeight*s);c.getContext('2d').drawImage(v,0,0,c.width,c.height);
+  const at=new Date().toISOString(), g=gps?{latitude:gps.latitude,longitude:gps.longitude,accuracy:gps.accuracy}:null;
+  c.toBlob(b=>{stopCam();camResolve&&camResolve(b?{blob:b,captured_at:at,gps:g}:null);camResolve=null;},'image/jpeg',0.88);
+};
+$('#camCancel').onclick=()=>{stopCam();camResolve&&camResolve(null);camResolve=null;};
+function pickFile(){
+  return new Promise(res=>{
+    const inp=$('#filePick');inp.value='';
+    const done=()=>{window.removeEventListener('focus',onFocus);};
+    const onFocus=()=>setTimeout(()=>{if(!inp.files.length){done();res(null);}},800);
+    inp.onchange=async()=>{done();const f=inp.files[0];if(!f)return res(null);
+      if(f.size<=9.5*1024*1024)return res({blob:f,captured_at:null,gps:null,source:'upload'});
+      try{const b=await shrinkFile(f);res({blob:b,captured_at:null,gps:null,source:'upload'});}catch(e){toast('Could not read that photo');res(null);}
+    };
+    window.addEventListener('focus',onFocus);inp.click();
+  });
+}
+function shrinkFile(file){
+  return new Promise((res,rej)=>{const img=new Image();img.onload=()=>{const s=Math.min(1,1600/Math.max(img.width,img.height));const c=document.createElement('canvas');c.width=Math.round(img.width*s);c.height=Math.round(img.height*s);c.getContext('2d').drawImage(img,0,0,c.width,c.height);c.toBlob(b=>b?res(b):rej(),'image/jpeg',0.88);URL.revokeObjectURL(img.src);};img.onerror=rej;img.src=URL.createObjectURL(file);});
+}
+function choosePhoto(){
+  return new Promise(res=>{
+    sheet(`${title('Add a leaf photo','ఫోటో ఎలా ఇవ్వాలి?')}
+      <button class="cropbtn auto" id="chCam">${icons.camera}<span><b>కెమెరా / Camera</b>Live photo: GPS and time are recorded</span></button>
+      <button class="cropbtn" id="chFile">${icons.image}<span><b>ఫోటో అప్‌లోడ్ / Upload photo</b>Choose from the gallery or files</span></button>
+      <button class="btn ghost" id="chCancel">Cancel</button>`);
+    $('#chCam').onclick=async()=>{closeSheet();const s=await liveCamera('leaf');res(s&&{...s,source:'camera'});};
+    $('#chFile').onclick=async()=>{closeSheet();res(await pickFile());};
+    $('#chCancel').onclick=()=>{closeSheet();res(null);};
+  });
+}
+function getPosition(){return new Promise((res,rej)=>{if(!navigator.geolocation)return rej(new Error('No GPS'));navigator.geolocation.getCurrentPosition(p=>res(p.coords),e=>rej(new Error('Turn on location and allow it for Zemli')),{enableHighAccuracy:true,timeout:20000,maximumAge:0});});}
+
+/* ======================= EMPLOYEE ======================= */
+async function loadGroups(){
+  try{groups=await api('/api/emp/groups');localStorage.setItem('zemli_cache',JSON.stringify(groups));}
+  catch(e){groups=JSON.parse(localStorage.getItem('zemli_cache')||'[]');if(!groups.length)throw e;toast('Offline: showing saved farmer list');}
+}
+function groupChips(sel){return `<div class="chips">${groups.map(g=>`<button data-g="${g.id}" class="${g.id===sel?'on':''}">గ్రూప్ ${g.id}<small>${g.farmers.length}/10</small></button>`).join('')}</div>`;}
+function bindChips(onPick){document.querySelectorAll('.chips button[data-g]').forEach(b=>b.onclick=()=>{curGroup=+b.dataset.g;onPick();});}
+const grp=()=>groups.find(g=>g.id===curGroup)||{farmers:[]};
+const clusterId=gid=>`ZM-GNT-${String(100+gid)}`;
+
+views.farmers=async()=>{
+  const m=$('#main');m.innerHTML='<p class="muted">Loading…</p>';
+  try{await loadGroups();}catch(e){m.innerHTML=`<p class="err">${esc(e.message)}</p>`;return;}
+  const g=grp();
+  m.innerHTML=`${title('Farmer groups','రైతు గ్రూపులు')}${groupChips(curGroup)}
+    <div class="group-head"><div>Farmer group: <b>${esc(g.village||g.name)}</b></div><span class="muted">${g.farmers.length} / 10 members</span></div>
+    ${g.farmers.map(f=>`<div class="farmer" role="button" tabindex="0" data-f="${f.id}">
+      <div class="row"><span class="avatar">${esc(f.name[0]||'?')}</span>
+        <div class="grow"><div class="name">${esc(f.name)}</div>${f.aadhaar?'<span class="verif"><i>✓</i>Aadhaar linked</span>':'<span class="tag warn">No Aadhaar yet</span>'}</div>
+        <span class="muted" style="text-align:right;font-size:13px">${esc(f.package_label)}</span></div>
+      <div class="meta"><span>${f.aadhaar?`Aadhaar: ${esc(f.aadhaar)}<br>`:''}Cluster ID: <b>${clusterId(f.group_id)}</b>
+        ${f.pending_bill>0?`<br>Bill: <span class="y">${rs(f.pending_bill)}</span>`:''}${f.latitude==null?'<br><span class="y">No farm GPS</span>':''}</span>
+        <span class="row" style="gap:8px"><a class="roundbtn" href="tel:${esc(f.phone)}" aria-label="Call ${esc(f.name)}" onclick="event.stopPropagation()">${icons.phone}</a><span class="roundbtn">${icons.arrow}</span></span></div>
+    </div>`).join('')||'<div class="card muted">No farmers in this group yet.</div>'}
+    ${g.farmers.length<10?'<button class="btn primary" id="addF">+ కొత్త రైతు / Add farmer</button>':''}`;
+  bindChips(views.farmers);
+  $('#addF')&&($('#addF').onclick=onboardForm);
+  document.querySelectorAll('.farmer').forEach(b=>{b.onclick=()=>farmerSheet(+b.dataset.f);b.onkeydown=e=>{if(e.key==='Enter')farmerSheet(+b.dataset.f);};});
+};
+function findFarmer(id){for(const g of groups)for(const f of g.farmers)if(f.id===id)return f;return null;}
+function farmerSheet(id){
+  const f=findFarmer(id);if(!f)return;
+  sheet(`${title(esc(f.name),esc(f.village||''))}
+    <div class="card"><div class="kv"><span>Phone</span><b>${esc(f.phone)}</b></div><div class="kv"><span>Package</span><b>${esc(f.package_label)}</b></div>
+    <div class="kv"><span>Survey no.</span><b>${esc(f.survey_no||'-')}</b></div><div class="kv"><span>Aadhaar</span><b>${esc(f.aadhaar||'-')}</b></div>
+    <div class="kv"><span>Bank</span><b>${esc(f.bank_account||'-')} ${esc(f.ifsc||'')}</b></div>
+    <div class="kv"><span>Pending bill</span><b class="money y">${rs(f.pending_bill)}</b></div>
+    <div class="kv"><span>Farm GPS</span><b>${f.latitude==null?'Not set':f.latitude.toFixed(5)+', '+f.longitude.toFixed(5)}</b></div></div>
+    <button class="btn primary" id="sScan">${icons.camera} పంట స్కాన్ / Scan crop</button>
+    <button class="btn ghost" id="sGive">${icons.wallet} ఇన్‌పుట్ ఇవ్వండి / Give inputs</button>
+    <button class="btn ghost" id="sLoc">${icons.pin} ఇక్కడే పొలం GPS సెట్ చేయండి / Set farm GPS here</button>
+    <p class="muted">Stand inside the farm when you set the GPS. It is used for the map, the photo audit and field attendance.</p>
+    <button class="btn ghost" id="sClose">Close</button>`);
+  $('#sClose').onclick=closeSheet;
+  $('#sScan').onclick=()=>{closeSheet();scanFarmer=f.id;go('scan');};
+  $('#sGive').onclick=()=>{closeSheet();khataFarmer=f.id;khataMode='one';go('khata');};
+  $('#sLoc').onclick=async()=>{
+    $('#sLoc').disabled=true;$('#sLoc').textContent='Getting GPS…';
+    try{const p=await getPosition();await api(`/api/emp/farmers/${f.id}/location`,{method:'PUT',body:JSON.stringify({latitude:p.latitude,longitude:p.longitude})});
+      toast('Farm location saved');closeSheet();views.farmers();}
+    catch(e){toast(e.message);$('#sLoc').disabled=false;$('#sLoc').textContent='Set farm GPS here';}
+  };
+}
+async function onboardForm(){
+  let pk={};try{pk=await api('/api/packages');}catch(e){}
+  sheet(`${title('New farmer','కొత్త రైతు')}
+    <label>రైతు పేరు / Farmer name *<input id="fName" autocomplete="off"></label>
+    <label>మొబైల్ / Phone number *<input id="fPhone" type="tel" inputmode="numeric" maxlength="14"></label>
+    <label>గ్రామం / Village<input id="fVillage" value="${esc(grp().village||'')}"></label>
+    <label>గ్రూప్ / Group<select id="fGroup">${groups.map(g=>`<option value="${g.id}" ${g.id===curGroup?'selected':''} ${g.farmers.length>=10?'disabled':''}>Group ${g.id} (${g.farmers.length}/10)</option>`).join('')}</select></label>
+    <label>ఆధార్ / Aadhaar (12 digits)<input id="fAadhaar" type="tel" inputmode="numeric" maxlength="14"></label>
+    <p class="muted" style="margin:4px 0 0">Only the last 4 digits are saved.</p>
+    <label>బ్యాంక్ ఖాతా / Bank account number<input id="fAcct" type="tel" inputmode="numeric" maxlength="18"></label>
+    <label>IFSC<input id="fIfsc" maxlength="11" style="text-transform:uppercase" placeholder="SBIN0001234"></label>
+    <label>సర్వే నంబర్ / Land survey number<input id="fSurvey"></label>
+    <label>Zemli ప్యాకేజీ / Package</label>
+    <div class="seg">${['5k','10k'].map((k,i)=>`<label><input type="radio" name="fPkg" value="${k}" ${i===0?'checked':''}>${esc(pk[k]?.label||k)}<br><span class="muted">${pk[k]?rs(pk[k].project_cost):''}</span></label>`).join('')}</div>
+    <button class="btn ghost" id="fGps">${icons.pin} పొలం GPS తీసుకోండి / Capture farm GPS</button><p class="muted" id="fGpsTxt">Optional now. You can also set it later.</p>
+    <div class="err" id="fErr" role="alert"></div>
+    <button class="btn primary" id="fSave">సేవ్ / Save farmer</button><button class="btn ghost" id="fCancel">Cancel</button>`);
+  let loc=null;
+  $('#fCancel').onclick=closeSheet;
+  $('#fGps').onclick=async()=>{$('#fGpsTxt').textContent='Getting GPS…';try{const p=await getPosition();loc=p;$('#fGpsTxt').textContent=`GPS ✓ ${p.latitude.toFixed(5)}, ${p.longitude.toFixed(5)}`;}catch(e){$('#fGpsTxt').textContent=e.message;}};
+  $('#fSave').onclick=async()=>{
+    $('#fErr').textContent='';$('#fSave').disabled=true;
+    try{
+      await api('/api/emp/farmers',{method:'POST',body:JSON.stringify({name:$('#fName').value,phone:$('#fPhone').value,group_id:+$('#fGroup').value,village:$('#fVillage').value,
+        aadhaar:$('#fAadhaar').value,bank_account:$('#fAcct').value,ifsc:$('#fIfsc').value,survey_no:$('#fSurvey').value,
+        package:document.querySelector('input[name=fPkg]:checked').value,latitude:loc?.latitude??null,longitude:loc?.longitude??null})});
+      curGroup=+$('#fGroup').value;closeSheet();toast('Farmer added. They can now log in with their phone number.');views.farmers();
+    }catch(e){$('#fErr').textContent=e.message;$('#fSave').disabled=false;}
+  };
+}
+
+/* ---------- daily field photo (attendance) ---------- */
+let fieldMonth=null;
+views.field=async()=>{
+  const m=$('#main');
+  const queued=(await qAll().catch(()=>[])).filter(x=>x.kind==='field');
+  m.innerHTML=`${title('Employee field audit','రోజువారీ ఫీల్డ్ ఫోటో')}<div id="fToday" class="card"><p class="muted">Loading…</p></div>
+    <div class="card glow center">
+      <button class="shutter-big" id="fShot" aria-label="Capture daily field photo">${icons.camera}</button>
+      <div style="font-size:18px;font-weight:600;margin-top:10px">Capture daily field photo</div>
+      <div class="muted">పొలంలో ఉన్నప్పుడు ఫోటో తీయండి. GPS, తేదీ, సమయం నమోదు అవుతాయి.<br>Live camera only. GPS, date and time are recorded.</div>
+      ${queued.length?`<p class="y" style="margin:10px 0 0">${queued.length} photo(s) saved offline, uploading when the network is back.</p>`:''}
+    </div>
+    <div id="fMonth"></div>`;
+  $('#fShot').onclick=takeFieldPhoto;
+  try{fieldMonth=await api('/api/emp/field-visits');}catch(e){$('#fToday').innerHTML=`<p class="muted">Offline: your attendance summary loads when the network is back.</p>`;return;}
+  renderFieldMonth();
+};
+function renderFieldMonth(){
+  const d=fieldMonth, tv=d.today_visits||[];
+  const verifiedToday=tv.some(v=>v.verified);
+  $('#fToday').className='card '+(tv.length?(verifiedToday?'glow':'glow-gold'):'');
+  $('#fToday').innerHTML=tv.length?`<div class="row"><span class="pill ${verifiedToday?'on':''}" style="${verifiedToday?'':'color:var(--gold);border-color:rgba(245,184,53,.5)'}">${icons.shield}${verifiedToday?'Field day recorded':'Photo saved, not near a farm'}</span></div>
+      <div class="kv" style="margin-top:8px"><span>Photos today</span><b>${tv.length}</b></div>
+      <div class="kv"><span>First photo</span><b>${esc(tv[tv.length-1].time_ist)}</b></div>
+      <div class="kv"><span>Latest photo</span><b>${esc(tv[0].time_ist)}</b></div>`
+    :`<div class="row"><span class="pill off">${icons.shield}No field photo yet today</span></div><p class="muted" style="margin:10px 0 0">ఈ రోజు ఇంకా ఫీల్డ్ ఫోటో లేదు. Take one at a farmer's field to count today.</p>`;
+  const [y,mo]=d.month.split('-').map(Number), first=new Date(y,mo-1,1), days=new Date(y,mo,0).getDate(), lead=(first.getDay()+6)%7;
+  const byDay=Object.fromEntries(d.days.map(x=>[x.day,x]));
+  let cells='';for(let i=0;i<lead;i++)cells+='<div></div>';
+  for(let n=1;n<=days;n++){const k=`${d.month}-${String(n).padStart(2,'0')}`,x=byDay[k];cells+=`<div class="d ${x?(x.verified?'ok':'part'):''} ${k===d.today?'today':''}" title="${x?`${x.photos} photo(s), ${x.first}${x.photos>1?' to '+x.last:''}`:''}">${n}</div>`;}
+  const mname=first.toLocaleDateString('en-IN',{month:'long',year:'numeric'});
+  $('#fMonth').innerHTML=`<div class="tiles"><div class="tile glow"><div class="label">Field days in ${first.toLocaleDateString('en-IN',{month:'short'})}</div><div class="val g">${d.field_days}</div></div>
+      <div class="tile"><div class="label">Not verified</div><div class="val ${d.unverified_days?'y':''}">${d.unverified_days}</div></div></div>
+    <div class="card"><b>${esc(mname)}</b><div class="cal">${['M','T','W','T','F','S','S'].map(h=>`<div class="h">${h}</div>`).join('')}${cells}</div>
+      <p class="muted" style="margin:12px 0 0"><span class="g">■</span> counted (within ${Math.round(d.radius_m)} m of a farm) &nbsp; <span class="y">■</span> photo taken away from farms or without GPS</p></div>
+    ${tv.length?`<h3>Today's photos</h3><div class="card">${tv.map(v=>`<div class="visit"><img src="${esc(v.image_url)}" alt="Field photo" loading="lazy"><div>
+      <b>${esc(v.time_ist)}</b> ${v.verified?'<span class="tag">counted</span>':'<span class="tag warn">not counted</span>'}<br>
+      <span class="muted">${v.nearest_farmer?`Near ${esc(v.nearest_farmer)}'s farm · ${v.distance_m} m`:'No farm nearby'}</span>
+      ${v.flags.length?`<br><span class="y" style="font-size:13px">${v.flags.map(esc).join(' · ')}</span>`:''}</div></div>`).join('')}</div>`:''}`;
+}
+async function takeFieldPhoto(){
+  const shot=await liveCamera('field');if(!shot)return;
+  if(!shot.gps&&!confirm('GPS was not found. The photo will be saved but will not count as a field day. Continue?'))return;
+  const id=crypto.randomUUID?crypto.randomUUID():String(Date.now())+Math.random();
+  const item={client_id:id,kind:'field',blob:shot.blob,fields:{client_id:id,captured_at:shot.captured_at,latitude:shot.gps?.latitude,longitude:shot.gps?.longitude,accuracy:shot.gps?.accuracy}};
+  await qAdd(item);
+  try{const v=await upload(item);await qDel(id);toast(v.verified?`ఫీల్డ్ డే నమోదైంది / Field day recorded: near ${v.nearest_farmer}`:`Photo saved: ${v.flags[0]||'not near a registered farm'}`);}
+  catch(e){if(e.fatal){await qDel(id);toast(e.message);}else toast('No network. Photo saved with GPS and time; it uploads automatically.');}
+  views.field();
+}
+
+/* ---------- crop care ---------- */
+let scanFarmer=null;
+function cropButtons(){
+  return `${autoOn?`<button class="cropbtn auto" data-c="auto">${icons.sprout}<span><b>ఏ ఆకైనా స్కాన్</b>Scan any leaf: the app finds the crop</span></button>`:''}
+    ${crops.map(c=>`<button class="cropbtn" data-c="${c.id}">${icons.leaf}<span><b>${esc(c.name_te)}</b>${esc(c.name_en)}</span></button>`).join('')}`;
+}
+views.scan=async()=>{
+  const m=$('#main');
+  if(!groups.length){try{await loadGroups();}catch(e){}}
+  if(scanFarmer){const fg=groups.find(x=>x.farmers.some(f=>f.id===scanFarmer));if(fg)curGroup=fg.id;}
+  const pending=(await qAll().catch(()=>[])).filter(x=>x.kind!=='field').length;
+  m.innerHTML=`${title('AI crop disease advisory','పంట స్కాన్')}${groupChips(curGroup)}
+    <label>రైతు / Farmer<select id="scF"><option value="">Choose farmer…</option>${grp().farmers.map(f=>`<option value="${f.id}" ${f.id===scanFarmer?'selected':''}>${esc(f.name)}</option>`).join('')}</select></label>
+    <h3>పంట / Crop</h3>${cropButtons()}
+    ${pending?`<p class="y">${pending} scan(s) waiting to upload. They upload automatically when the network is back.</p>`:''}
+    <div id="scanOut"></div>`;
+  bindChips(views.scan);
+  $('#scF').onchange=e=>scanFarmer=+e.target.value||null;
+  document.querySelectorAll('.cropbtn').forEach(b=>b.onclick=()=>doScan(b.dataset.c));
+};
+async function doScan(crop){
+  if(me.role==='employee'&&!scanFarmer){toast('Choose the farmer first / ముందు రైతును ఎంచుకోండి');return;}
+  const shot=await choosePhoto();if(!shot)return;
+  const item={client_id:crypto.randomUUID?crypto.randomUUID():String(Date.now())+Math.random(),kind:'scan',blob:shot.blob,
+    fields:{crop,source:shot.source,employee_id:me.scan_id||'self',farmer_id:me.role==='employee'?scanFarmer:me.id,latitude:shot.gps?.latitude,longitude:shot.gps?.longitude,captured_at:shot.captured_at}};
+  item.fields.client_id=item.client_id;
+  const out=$('#scanOut'), img=`<img class="photo" src="${URL.createObjectURL(shot.blob)}" alt="Leaf photo">`;
+  out.innerHTML=img+`<div class="result-pill warn"><span class="h">Scanning…</span><span class="te">పరిశీలిస్తోంది…</span></div>`;
+  out.scrollIntoView({behavior:'smooth'});
+  await qAdd(item);
+  try{const s=await upload(item);await qDel(item.client_id);out.innerHTML=img+resultBox(s,shot.gps);}
+  catch(e){
+    if(e.fatal){await qDel(item.client_id);out.innerHTML=img+`<div class="result-pill bad"><span class="h">${esc(e.message)}</span></div>`;}
+    else out.innerHTML=img+`<div class="result-pill warn"><span class="h">No network</span><span class="te" style="font-size:16px">ఫోటో ఫోన్‌లో సేవ్ అయింది, నెట్ రాగానే అప్‌లోడ్ అవుతుంది.</span><span class="muted">Saved on the phone with GPS and time; it uploads automatically.</span></div>`;
+  }
+}
+function resultBox(s,g){
+  const r=s.result, top=s.top_predictions[0], sure=top&&top.confidence>=0.7, healthy=sure&&top.label==='healthy';
+  const crop=crops.find(c=>c.id===s.crop);
+  let pill;
+  if(s.status==='rejected')pill=`<div class="result-pill bad"><span class="h">${esc(r.name_en)}</span><span class="te">${esc(r.name_te)}</span></div>`;
+  else if(!top||!sure)pill=`<div class="result-pill warn"><span class="h">${!top?'No AI model for this crop yet':'Not sure'}${top?` (${Math.round(top.confidence*100)}%)`:''}</span><span class="te">${esc(r.name_te)}</span><span class="muted">The agronomist will check this photo.</span></div>`;
+  else if(healthy)pill=`<div class="result-pill ok"><span class="h">Healthy (${Math.round(top.confidence*100)}% confidence)</span><span class="te">${esc(r.name_te)}</span></div>`;
+  else pill=`<div class="result-pill bad"><span class="h">Disease found: <b>${esc(r.name_en)}</b> (${Math.round(top.confidence*100)}% confidence)</span><span class="te">${esc(r.name_te)}</span></div>`;
+  const loc=s.source==='upload'?(s.latitude!=null?`${s.latitude.toFixed(5)}, ${s.longitude.toFixed(5)} (from the photo) · uploaded photo`:'Uploaded photo, no location saved in it'):g?`${g.latitude.toFixed(5)}, ${g.longitude.toFixed(5)}`:'No GPS on this photo';
+  return `${pill}
+    <div class="card glow action"><div class="muted">${crop&&s.status!=='rejected'?esc(crop.name_en)+' · ':''}Recommended action</div>
+      <div class="head">${s.status==='rejected'?icons.camera:healthy?icons.shield:icons.spray}<span>${s.status==='rejected'?'Retake the photo':healthy?'Keep checking daily':'Act today'}</span></div>
+      <div class="te">${esc(r.advice_te)}</div><div class="muted">${esc(r.advice_en)}</div></div>
+    <p class="muted">📍 ${loc} · ${me.role==='farmer'?'saved in your crop care log':"saved under the farmer's ID"}</p>`;
+}
+
+/* ---------- khata (input credit) ---------- */
+let khataFarmer=null, khataMode='bulk';
+views.khata=async()=>{
+  const m=$('#main');
+  if(!groups.length){try{await loadGroups();}catch(e){}}
+  if(khataFarmer){const fg=groups.find(x=>x.farmers.some(f=>f.id===khataFarmer));if(fg)curGroup=fg.id;}
+  const g=grp();
+  m.innerHTML=`${title('Input credit ledger','ఖాతా బుక్')}${groupChips(curGroup)}
+    <div class="seg"><label><input type="radio" name="kMode" value="bulk" ${khataMode==='bulk'?'checked':''}>గ్రూప్ అందరికీ / Bulk give</label>
+      <label><input type="radio" name="kMode" value="one" ${khataMode==='one'?'checked':''}>ఒక రైతుకు / One farmer</label></div>
+    <div class="card glow" style="margin-top:12px">
+      <div class="${khataMode==='one'?'':'hidden'}"><label>రైతు / Farmer<select id="kF">${g.farmers.map(f=>`<option value="${f.id}" ${f.id===khataFarmer?'selected':''}>${esc(f.name)}</option>`).join('')}</select></label></div>
+      <label>వస్తువు / Item<input id="kItem" list="kItems" placeholder="e.g. Tomato seeds"></label>
+      <datalist id="kItems"><option>Tomato seeds (hybrid)</option><option>Cucumber seeds</option><option>Coriander seeds</option><option>Neem oil bio-pesticide</option><option>Trichoderma</option><option>Pseudomonas</option><option>Vermicompost</option></datalist>
+      <label>పరిమాణం / Quantity<input id="kQty" placeholder="e.g. 10 g each"></label>
+      <label>${khataMode==='bulk'?'మొత్తం ఖర్చు / Total cost for the group (₹)':'ఖర్చు / Cost (₹)'}<input id="kAmt" type="number" inputmode="decimal" min="0" step="0.01"></label>
+      <p class="g" id="kSplit" style="margin:8px 0 0"></p>
+      <div class="err" id="kErr" role="alert"></div>
+      <button class="btn primary" id="kSave" ${!g.farmers.length?'disabled':''}>${khataMode==='bulk'?`Bulk give to ${g.farmers.length} farmers`:'ఇవ్వండి / Give'}</button>
+    </div>
+    <h3>ఇటీవలి ఎంట్రీలు / Recent entries</h3><div id="kList" class="muted">Loading…</div>`;
+  bindChips(()=>{khataFarmer=null;views.khata();});
+  document.querySelectorAll('input[name=kMode]').forEach(r=>r.onchange=()=>{khataMode=r.value;views.khata();});
+  $('#kAmt').oninput=()=>{const t=+$('#kAmt').value;$('#kSplit').textContent=khataMode==='bulk'&&t>0&&g.farmers.length?`ప్రతి రైతుకు / Each farmer: ₹${(t/g.farmers.length).toFixed(2)} × ${g.farmers.length}`:'';};
+  $('#kSave').onclick=async()=>{
+    $('#kErr').textContent='';$('#kSave').disabled=true;
+    try{
+      if(khataMode==='bulk'){
+        if(!confirm(`Give "${$('#kItem').value}" to all ${g.farmers.length} farmers of Group ${curGroup}, ₹${(+$('#kAmt').value).toFixed(2)} split equally?`)){$('#kSave').disabled=false;return;}
+        await api('/api/emp/credits/bulk',{method:'POST',body:JSON.stringify({group_id:curGroup,item:$('#kItem').value,quantity:$('#kQty').value,total_amount:+$('#kAmt').value})});
+      }else await api('/api/emp/credits',{method:'POST',body:JSON.stringify({farmer_id:+$('#kF').value,item:$('#kItem').value,quantity:$('#kQty').value,amount:+$('#kAmt').value})});
+      toast('ఖాతాలో నమోదైంది / Saved in khata');khataFarmer=null;await loadGroups();views.khata();
+    }catch(e){$('#kErr').textContent=e.message;$('#kSave').disabled=false;}
+  };
+  try{const list=await api(`/api/emp/credits?group_id=${curGroup}`);
+    $('#kList').innerHTML=list.length?list.slice(0,40).map(c=>`<div class="ledger"><div class="top"><div><b>${esc(c.farmer_name)}</b><div class="sub">${day(c.given_on)}</div></div><div class="amt">${rs(c.amount)}</div></div>
+      <div class="sub">Input: <em>${esc(c.item)}</em>${c.quantity?' · '+esc(c.quantity):''}${c.bulk_id?' · bulk give':''} ${c.settled?'<span class="tag">recovered</span>':''}</div></div>`).join(''):'<div class="card muted">No entries yet.</div>';
+  }catch(e){$('#kList').textContent='Offline: entries load when the network is back. Khata entries need network to save.';}
+};
+
+/* ======================= FARMER ======================= */
+let fdata=null;
+async function loadFarmer(){fdata=await api('/api/farmer/summary');localStorage.setItem('zemli_cache',JSON.stringify(fdata));}
+function noticesHtml(){
+  const n=(fdata.notices||[]).filter(x=>Date.now()-new Date(x.created_at)<3*864e5).slice(0,2);
+  return n.map(x=>`<div class="notice ${x.kind}"><b>${esc(x.text_te)}</b><br><span class="muted">${esc(x.text_en)} · ${when(x.created_at)}</span></div>`).join('');
+}
+async function farmerView(render,withNotices){
+  const m=$('#main');if(!fdata)m.innerHTML='<p class="muted">Loading…</p>';
+  try{await loadFarmer();}catch(e){fdata=fdata||JSON.parse(localStorage.getItem('zemli_cache')||'null');if(!fdata){m.innerHTML=`<p class="err">${esc(e.message)}</p>`;return;}toast('Offline: showing saved data');}
+  m.innerHTML=(withNotices?noticesHtml():'')+render(fdata);
+}
+const pct=(a,b)=>b>0?Math.max(0,Math.min(100,a/b*100)):0;
+const iotPill=i=>i.reading?(i.online?`<span class="pill on">${icons.chip}IoT node online${i.light==='red'?' · needs attention':''}</span>`:`<span class="pill off">${icons.chip}IoT node offline</span>`):`<span class="pill off">${icons.chip}IoT box not connected yet</span>`;
+
+views.fdash=()=>farmerView(d=>{const f=d.farmer,last=d.payouts[0];return `${title(`నమస్తే, ${esc(f.name)}`,`${esc(f.village||'')} · ${esc(f.package_label)} net-shed`)}
+  <div style="margin-bottom:12px">${iotPill(d.iot)}</div>
+  <div class="tiles"><div class="tile glow"><div class="label">Loan remaining</div><div class="val money">${rs(f.loan_remaining)}</div></div>
+    <div class="tile"><div class="label">Input credit due</div><div class="val money y">${rs(d.pending_bill)}</div></div></div>
+  <div class="card glow"><div class="muted">మొత్తం ప్రాజెక్ట్ ఖర్చు / Total project cost</div><div class="big money">${rs(f.project_cost)}</div>
+    <hr class="soft"><b>ప్రభుత్వ సబ్సిడీ / Government subsidy</b><div class="bar"><div style="width:${pct(f.subsidy_received,f.subsidy)}%"></div></div>
+    <div class="kv"><span>Received</span><b class="money g">${rs(f.subsidy_received)}</b></div><div class="kv"><span>Approved</span><b class="money">${rs(f.subsidy)}</b></div></div>
+  <div class="card"><b>బ్యాంక్ రుణం / Bank loan</b><div class="bar"><div style="width:${pct(f.loan_repaid,f.loan_approved)}%"></div></div>
+    <div class="kv"><span>Approved</span><b class="money">${rs(f.loan_approved)}</b></div><div class="kv"><span>Repaid</span><b class="money g">${rs(f.loan_repaid)}</b></div>
+    <div class="kv"><span>Remaining</span><b class="money" style="font-size:19px">${rs(f.loan_remaining)}</b></div>
+    <div class="kv"><span>Your share paid</span><b class="money">${rs(f.farmer_share)}</b></div></div>
+  ${last?`<div class="netcard">${icons.shield}<div><div class="t">Last payment to your bank · ${day(last.paid_at)}</div><div class="v money">${rs(last.net)}</div></div></div>`:''}`;},true);
+
+views.credit=()=>farmerView(d=>{
+  const total=d.bills.reduce((a,c)=>a+c.amount,0), due=d.pending_bill;
+  return `${title('Farmer input credit ledger','ఇన్‌పుట్ బిల్లులు')}
+  ${ring(total?due/total:0,`<span>Total credit outstanding</span><b class="money">${rs(due)}</b><span class="muted">interest-free · ${new Date().toLocaleTimeString('en-IN',{hour:'numeric',minute:'2-digit'})}</span>`)}
+  <p class="muted center" style="margin-top:-6px">Recovered automatically from your harvest payment.<br>మీ పంట డబ్బు నుండి ఆటోమేటిక్‌గా కట్ అవుతుంది.</p>
+  ${d.bills.map(c=>`<div class="ledger"><div class="top"><div><b>${esc(c.item)}</b><div class="sub">${day(c.given_on)}</div></div><div class="amt">${rs(c.amount)}</div></div>
+    <div class="sub">${c.quantity?`Quantity: <em>${esc(c.quantity)}</em> · `:''}Disbursal ID: <em>ZM-CR-${String(c.id).padStart(4,'0')}</em></div>
+    <div class="sub">${c.settled?'<span class="tag">చెల్లింపు అయింది / paid</span>':'<span class="tag warn">pending</span>'}</div></div>`).join('')||'<div class="card muted">No bills yet.</div>'}`;});
+
+views.farm=async()=>{
+  await farmerView(d=>{const i=d.iot,r=i.reading||{};
+    const npkLow=i.low_nutrients||[];
+    return `${title('Farm data','పొలం సెన్సర్లు')}<div style="margin-bottom:14px">${iotPill(i)}</div>
+    <div class="card ${i.moisture==='dry'?'glow-red':'glow'}"><div class="row"><div class="grow"><div class="muted">Soil moisture / నేల తేమ</div>
+      <div class="big ${i.moisture==='dry'?'r':''}">${r.soil_moisture!=null?r.soil_moisture+'%':'—'}</div>
+      <div class="${i.moisture==='dry'?'r':'g'}">${i.moisture==='dry'?'పొడిగా ఉంది, డ్రిప్ ఆన్ చేయండి / Dry: switch on the drip':i.moisture?'తడి ఉంది / Wet enough':''}</div></div></div>
+      <div id="sparkMoist"></div><div class="muted" style="font-size:12px">Last 24 h</div></div>
+    <div class="tiles">
+      <div class="tile ${i.nutrients==='low'?'glow-gold':'glow'}"><div class="label">NPK levels / పోషకాలు</div><div class="val ${i.nutrients==='low'?'y':'g'}">${i.nutrients==='low'?'Low':i.nutrients?'Optimal':'—'}</div>
+        <div class="muted" style="font-size:13px;margin-top:6px">N ${r.nitrogen??'-'} · P ${r.phosphorus??'-'} · K ${r.potassium??'-'} mg/kg${npkLow.length?`<br><span class="y">Low: ${npkLow.join(', ')}</span>`:''}</div></div>
+      <div class="tile ${i.weather==='hot'?'glow-red':''}"><div class="label">Air temperature</div><div class="val ${i.weather==='hot'?'r':''}">${r.air_temp!=null?r.air_temp+'°C':'—'}</div>
+        <div class="muted" style="font-size:13px;margin-top:6px">Humidity ${r.humidity!=null?r.humidity+'%':'—'}</div><div id="barsTemp"></div></div></div>
+    <p class="muted">${i.reading?`Updated ${when(r.ts)}`:''}</p>`;},true);
+  try{const h=await api('/api/farmer/iot-history?hours=24');
+    const sm=h.map(x=>x.soil_moisture).filter(v=>v!=null);if($('#sparkMoist'))$('#sparkMoist').innerHTML=spark(sm,0,100);
+    const t=h.map(x=>x.air_temp).filter(v=>v!=null).slice(-10);
+    if(t.length&&$('#barsTemp')){const lo=Math.min(...t)-2,hi=Math.max(...t),mx=Math.max(...t);$('#barsTemp').innerHTML=`<div class="bars">${t.map(v=>`<div class="${v===mx?'hi':''}" style="height:${10+((v-lo)/((hi-lo)||1))*90}%"></div>`).join('')}</div>`;}
+  }catch(e){}
+};
+
+views.fscan=()=>farmerView(d=>`${title('AI crop disease advisory','పంట స్కాన్')}
+  <p class="muted" style="margin-top:-6px">ఒక ఆకు ఫోటో తీయండి. తెలుగులో వెంటనే సలహా వస్తుంది, Zemli నిపుణులు కూడా చూస్తారు.<br>Photograph one leaf. You get advice right away, and a Zemli agronomist also checks it.</p>
+  ${cropButtons()}<div id="scanOut"></div>
+  <h3>Crop care log</h3>
+  <div class="card">${d.diseases.map(s=>`<div class="carelog"><img src="${esc(s.image_url)}" alt="" loading="lazy"><div><b>${esc(s.result.name_te)}</b> <span class="muted">(${esc(s.result.name_en)})</span><br>
+    <span style="font-size:15px">${esc(s.result.advice_te)}</span><br><span class="muted">${day(s.captured_at||s.received_at)}${s.status==='verified'?' · <span class="g">✓ checked by agronomist</span>':''}</span></div></div>`).join('')||'<p class="muted">No scans yet.</p>'}</div>`)
+  .then(()=>document.querySelectorAll('.cropbtn').forEach(b=>b.onclick=()=>doScan(b.dataset.c)));
+
+const brandMark=b=>{const n=(b||'?').trim();return n.split(/\s+/).map(w=>w[0]).join('').slice(0,2).toUpperCase();};
+views.pay=()=>farmerView(d=>`${title('Escrow payout summary','చెల్లింపులు')}
+  ${d.payouts.map(p=>`<div class="card glow"><div class="brand"><span class="mark">${esc(brandMark(p.buyer))}</span><div><small>Corporate buyer</small><b>${esc(p.buyer)}</b></div></div>
+      <hr class="soft"><div class="kv"><span>Total offtake value${p.crop?' · '+esc(p.crop):''}${p.quantity_kg?` · ${p.quantity_kg} kg`:''}</span><b class="money">${rs(p.gross)}</b></div>
+      <div class="kv"><span>Status</span><b class="g">Funds cleared ✓</b></div></div>
+    <div class="card glow-red"><div class="muted" style="margin-bottom:4px">Pre-disbursement deductions / కోతలు</div>
+      <div class="ded">${icons.bank}<span>Loan EMI recovery / రుణ EMI</span><b class="money">−${rs(p.emi_deduction)}</b></div>
+      <div class="ded">${icons.receipt}<span>Input credit clearance / విత్తనాల బిల్లు</span><b class="money">−${rs(p.input_deduction)}</b></div></div>
+    <div class="netcard">${icons.shield}<div><div class="t">Net farmer profit disbursed / మీ లాభం</div><div class="v money">${rs(p.net)}</div>
+      <div class="muted" style="font-size:13px">Sent to your bank · ${when(p.paid_at)} · Ref ${esc(p.reference)}</div></div></div>
+    <hr class="soft" style="margin:22px 0">`).join('')||'<div class="card muted">No payments yet. After harvest, your payout summary appears here.</div>'}`);
+
+/* ======================= REALTIME ======================= */
+let ws=null;
+function connect(){
+  if(!token)return;
+  ws=new WebSocket(`${location.protocol==='https:'?'wss':'ws'}://${location.host}/ws?token=${encodeURIComponent(token)}`);
+  ws.onopen=()=>{$('#dot').classList.add('on');flush();ws._p=setInterval(()=>ws.send('ping'),25000);};
+  ws.onmessage=e=>{const m=JSON.parse(e.data);
+    if(m.type==='notice'){toast(m.text_te);if(me.role==='farmer')views[curView]();}
+    if(m.type==='scan_reviewed'){toast(`నిపుణులు చూశారు / Agronomist checked: ${m.scan.result.name_te} (${m.scan.result.name_en})`);if(me.role==='farmer'&&curView==='fscan')views.fscan();}
+  };
+  ws.onclose=()=>{$('#dot').classList.remove('on');clearInterval(ws?._p);if(token)setTimeout(connect,8000);};
+}
+
+/* ======================= INSTALL + START ======================= */
+let installEvt=null;
+if('serviceWorker' in navigator)navigator.serviceWorker.register('/sw.js').catch(()=>{});
+window.addEventListener('beforeinstallprompt',e=>{e.preventDefault();installEvt=e;$('#installBtn').classList.remove('hidden');});
+$('#installBtn').onclick=async()=>{if(!installEvt)return;installEvt.prompt();await installEvt.userChoice;installEvt=null;$('#installBtn').classList.add('hidden');};
+
+async function start(){
+  if(!token){showLogin();return;}
+  try{me=await api('/api/me');}catch(e){if(!token)return;me=JSON.parse(localStorage.getItem('zemli_me')||'null');if(!me){showLogin();return;}}
+  localStorage.setItem('zemli_me',JSON.stringify(me));
+  try{const c=await (await fetch('/api/crops')).json();crops=c.crops;autoOn=c.auto_detect;}catch(e){}
+  if(me.role==='employee'){
+    shell(`${me.name} · ${me.scan_id}`,[{v:'farmers',i:'home',l:'రైతులు',en:'Farmers'},{v:'field',i:'pin',l:'ఫీల్డ్',en:'Field audit'},{v:'scan',i:'sprout',l:'స్కాన్',en:'Crop care'},{v:'khata',i:'wallet',l:'ఖాతా',en:'Credit'}]);
+    go('farmers');flush();
+  }else{
+    shell(me.name,[{v:'fdash',i:'home',l:'హోమ్',en:'Dashboard'},{v:'credit',i:'wallet',l:'బిల్లులు',en:'Credit'},{v:'farm',i:'chart',l:'పొలం',en:'Farm data'},{v:'fscan',i:'sprout',l:'స్కాన్',en:'Crop care'},{v:'pay',i:'rupee',l:'చెల్లింపు',en:'Payouts'}]);
+    go('fdash');
+  }
+  connect();
+}
+start();
+</script>
+</body>
+</html>

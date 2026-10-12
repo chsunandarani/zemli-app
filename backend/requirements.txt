@@ -1,0 +1,7 @@
+fastapi>=0.110
+uvicorn[standard]>=0.29
+sqlmodel>=0.0.16
+python-multipart>=0.0.9
+onnxruntime>=1.17
+numpy>=1.26
+pillow>=10.0

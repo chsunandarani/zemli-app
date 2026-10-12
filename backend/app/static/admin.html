@@ -1,0 +1,312 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Zemli Agritech admin</title>
+<link rel="icon" href="/static/favicon.png">
+<link href="https://fonts.googleapis.com/css2?family=Figtree:wght@400;600;700&family=Noto+Sans+Telugu:wght@400&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"></script>
+<style>
+  :root{--bg:#07110C;--panel:#0B1912;--card:rgba(17,38,26,.82);--line:rgba(120,210,145,.16);--glow:#5EE07F;--glow-a:rgba(94,224,127,.5);--glow-s:rgba(94,224,127,.13);
+        --ink:#E9F5EC;--ink2:#CFE3D4;--muted:#93AE9A;--dim:#647F6C;--gold:#F5B835;--gold-s:rgba(245,184,53,.13);--red:#FF6A55;--red-s:rgba(255,106,85,.13)}
+  *{box-sizing:border-box}
+  body{margin:0;font-family:Figtree,"Noto Sans Telugu",system-ui,sans-serif;color:var(--ink);font-size:15px;display:grid;grid-template-columns:232px 1fr;min-height:100vh;
+    background:radial-gradient(1100px 600px at 90% -10%,#173B26 0%,transparent 60%),var(--bg);background-attachment:fixed}
+  aside{background:rgba(6,14,10,.92);border-right:1px solid var(--line);padding:18px 12px;position:sticky;top:0;height:100vh;overflow-y:auto}
+  aside .brand{display:flex;align-items:center;gap:10px;font-weight:700;font-size:15px;margin:0 6px 22px;color:var(--glow);letter-spacing:.06em}
+  aside .brand img{width:42px;height:42px;border-radius:50%;background:#fff;padding:3px;box-shadow:0 0 16px var(--glow-s)}
+  aside .brand small{display:block;font-weight:400;font-size:12px;color:var(--muted);letter-spacing:0}
+  aside button,aside a{display:block;width:100%;text-align:left;background:transparent;border:1px solid transparent;color:var(--muted);font:inherit;padding:10px 12px;border-radius:10px;cursor:pointer;margin-bottom:3px;text-decoration:none}
+  aside button:hover,aside a:hover{color:var(--ink);background:rgba(94,224,127,.06)}
+  aside button.on{color:var(--glow);border-color:var(--glow-a);background:rgba(94,224,127,.08);box-shadow:0 0 14px rgba(94,224,127,.15)}
+  main{padding:26px 30px;min-width:0}
+  h1{font-size:25px;font-weight:600;margin:0 0 4px;color:var(--ink2)}
+  h2{font-size:18px;font-weight:600;color:var(--ink2)}
+  .sub{color:var(--muted);margin:0 0 20px}
+  .grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(190px,1fr));gap:12px}
+  .card{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:16px}
+  .card.glow,.stat.glow{border-color:var(--glow-a);box-shadow:0 0 22px rgba(94,224,127,.15),inset 0 0 22px rgba(94,224,127,.04)}
+  .stat b{display:block;font-size:27px;margin-top:4px;font-variant-numeric:tabular-nums}
+  .stat span{color:var(--muted);font-size:13px}
+  .stat.glow b{color:var(--glow);text-shadow:0 0 14px rgba(94,224,127,.35)}
+  .tablewrap{overflow-x:auto;background:var(--card);border:1px solid var(--line);border-radius:16px}
+  table{border-collapse:collapse;width:100%;font-size:14px}
+  th,td{text-align:left;padding:10px 12px;border-bottom:1px solid var(--line);white-space:nowrap}
+  tr:last-child td{border-bottom:0}
+  th{background:rgba(6,14,10,.6);font-weight:600;color:var(--muted);font-size:13px;position:sticky;top:0}
+  tbody tr:hover td{background:rgba(94,224,127,.04)}
+  td.num,th.num{text-align:right;font-variant-numeric:tabular-nums}
+  input,select{font:inherit;padding:8px 10px;border:1px solid var(--line);border-radius:9px;background:#0A1912;color:var(--ink);color-scheme:dark}
+  input:focus,select:focus{outline:none;border-color:var(--glow-a);box-shadow:0 0 0 3px var(--glow-s)}
+  td input{width:110px}
+  code{background:#0A1912;border:1px solid var(--line);border-radius:6px;padding:1px 6px;font-size:13px}
+  .btn{font:inherit;font-weight:600;border-radius:10px;padding:8px 14px;cursor:pointer;border:1px solid var(--glow-a);background:transparent;color:var(--glow)}
+  .btn.primary{background:var(--glow);border-color:var(--glow);color:#03130A;box-shadow:0 0 18px rgba(94,224,127,.3)}
+  .btn:disabled{opacity:.45;cursor:default;box-shadow:none}
+  .row{display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin-bottom:14px}
+  .tag{display:inline-block;font-size:12px;padding:3px 9px;border-radius:20px;background:var(--glow-s);color:var(--glow)}
+  .tag.warn{background:var(--gold-s);color:var(--gold)}.tag.bad{background:var(--red-s);color:var(--red)}
+  .orb{display:inline-block;width:11px;height:11px;border-radius:50%;background:var(--dim);vertical-align:-1px}
+  .orb.green{background:var(--glow);box-shadow:0 0 8px var(--glow)}.orb.red{background:var(--red);box-shadow:0 0 8px var(--red)}
+  #map,#attMap{border-radius:16px;border:1px solid var(--line)}
+  #map{height:calc(100vh - 150px);min-height:420px}
+  #attMap{height:340px;margin-bottom:14px}
+  .leaflet-tile{filter:invert(1) hue-rotate(180deg) brightness(.85) contrast(.9) saturate(.6)}
+  .leaflet-container{background:#0A1912}
+  .leaflet-popup-content-wrapper,.leaflet-popup-tip{background:#0F2418;color:var(--ink);border:1px solid var(--glow-a)}
+  .audit{display:grid;grid-template-columns:repeat(auto-fill,minmax(230px,1fr));gap:12px}
+  .audit .card{padding:0;overflow:hidden}
+  .audit img{width:100%;height:170px;object-fit:cover;display:block;background:#0A1912}
+  .audit .body{padding:10px 12px;font-size:13px;line-height:1.55}
+  .note{background:var(--gold-s);color:var(--gold);border:1px solid rgba(245,184,53,.35);border-radius:12px;padding:10px 14px;margin-bottom:14px;font-size:14px}
+  .err{color:var(--red);font-size:14px}
+  .muted{color:var(--muted)}
+  .g{color:var(--glow)}.y{color:var(--gold)}.r{color:var(--red)}
+  a{color:var(--glow)}
+  .meter{height:8px;background:#12261A;border-radius:6px;overflow:hidden;min-width:120px}
+  .meter div{height:100%;background:var(--glow);box-shadow:0 0 10px var(--glow)}
+  tr.pick{cursor:pointer}
+  tr.pick.sel td{background:rgba(94,224,127,.08)}
+  .att-layout{display:grid;grid-template-columns:minmax(320px,420px) 1fr;gap:16px;align-items:start;margin-top:16px}
+  .cal{display:grid;grid-template-columns:repeat(7,1fr);gap:6px;margin-top:12px}
+  .cal .h{font-size:12px;color:var(--dim);text-align:center}
+  .cal button{aspect-ratio:1;border-radius:10px;background:#0A1912;border:1px solid var(--line);color:var(--dim);font:inherit;font-size:13px;cursor:default;display:flex;flex-direction:column;align-items:center;justify-content:center;line-height:1.1;padding:0}
+  .cal button small{font-size:10px;opacity:.85}
+  .cal button.ok{border-color:var(--glow-a);color:var(--glow);background:rgba(94,224,127,.12);box-shadow:0 0 10px rgba(94,224,127,.18);cursor:pointer}
+  .cal button.part{border-color:rgba(245,184,53,.55);color:var(--gold);background:var(--gold-s);cursor:pointer}
+  .cal button.sel{outline:2px solid var(--ink2);outline-offset:1px}
+  .visits{display:grid;grid-template-columns:repeat(auto-fill,minmax(250px,1fr));gap:12px}
+  .visits .card{padding:0;overflow:hidden}
+  .visits img{width:100%;height:180px;object-fit:cover;display:block;background:#0A1912}
+  .visits .body{padding:10px 12px;font-size:13px;line-height:1.6}
+  button:focus-visible,input:focus-visible,select:focus-visible,a:focus-visible{outline:2px solid var(--glow);outline-offset:2px}
+  @media (max-width:900px){.att-layout{grid-template-columns:1fr}}
+  @media (max-width:800px){body{grid-template-columns:1fr}aside{position:static;height:auto;display:flex;flex-wrap:wrap;gap:4px}aside .brand{width:100%}aside button,aside a{width:auto}main{padding:16px}}
+</style>
+</head>
+<body>
+<aside>
+  <div class="brand"><img src="/static/logo-mark.png" alt="">ZEMLI AGRI TECH<small>Admin panel</small></div>
+  <button data-v="overview">Overview</button>
+  <button data-v="map">Farm map</button>
+  <button data-v="attendance">Field attendance</button>
+  <button data-v="audit">Crop photo audit</button>
+  <button data-v="farmers">Farmers</button>
+  <button data-v="team">Employees & groups</button>
+  <button data-v="money">Money splitter & DBT</button>
+  <button data-v="iot">IoT devices</button>
+  <a href="/" target="_blank" rel="noopener">Disease review ↗</a>
+  <button data-v="demo">Demo & login codes</button>
+</aside>
+<main id="main"></main>
+<script>
+const $=s=>document.querySelector(s);
+const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const rs=n=>n==null?'-':'₹'+Number(n).toLocaleString('en-IN',{maximumFractionDigits:0});
+const when=iso=>iso?new Date(iso).toLocaleString('en-IN',{day:'numeric',month:'short',hour:'numeric',minute:'2-digit'}):'-';
+let key=localStorage.getItem('zemli_api_key')||'';
+async function api(path,opts={}){
+  const r=await fetch(path,{...opts,headers:{'Content-Type':'application/json','X-Api-Key':key,...(opts.headers||{})}});
+  if(r.status===401){key=prompt('Enter the Zemli admin API key')||'';localStorage.setItem('zemli_api_key',key);return api(path,opts);}
+  const j=await r.json().catch(()=>({}));if(!r.ok)throw new Error(j.detail||r.statusText);return j;
+}
+const V={};let cur='';
+function go(v){if(!V[v])v='overview';cur=v;document.querySelectorAll('aside button').forEach(b=>b.classList.toggle('on',b.dataset.v===v));location.hash=v;
+  $('#main').innerHTML='<p class="muted">Loading…</p>';V[v]().catch(e=>$('#main').innerHTML=`<p class="err">${esc(e.message)}</p>`);}
+document.querySelectorAll('aside button').forEach(b=>b.onclick=()=>go(b.dataset.v));
+
+V.overview=async()=>{
+  const o=await api('/api/admin/overview');
+  const s=(l,v,n,g)=>`<div class="card stat ${g?'glow':''}"><span>${l}</span><b>${v}</b>${n?`<span>${n}</span>`:''}</div>`;
+  $('#main').innerHTML=`<h1>Overview</h1><p class="sub">Live trial at a glance.</p>
+  <div class="grid">${s('Farmers',o.farmers,`${o.farmers_with_location} with farm GPS`,1)}${s('Employees in the field today',`${o.in_field_today} / ${o.employees}`,'<a href="#attendance">Open field attendance</a>',1)}${s('Scans today',o.scans_today)}
+  ${s('Scans needing review',o.needs_review,'<a href="/" target="_blank">Open review desk</a>')}${s('Pending input bills',rs(o.pending_bills))}
+  ${s('Loan outstanding',rs(o.loan_outstanding))}${s('Paid to farmers',rs(o.paid_to_farmers))}${s('IoT boxes online',`${o.devices_online} / ${o.devices}`)}</div>
+  ${o.otp_demo?'<p class="note" style="margin-top:16px">OTP demo mode is on: login codes are shown on screen instead of being sent by SMS. Connect an SMS provider before the real trial.</p>':''}`;
+};
+
+V.map=async()=>{
+  const farmers=await api('/api/admin/farmers');
+  const withLoc=farmers.filter(f=>f.latitude!=null);
+  $('#main').innerHTML=`<h1>Farm map</h1><p class="sub">${withLoc.length} of ${farmers.length} farms have GPS. <span class="orb green"></span> sensors fine <span class="orb red"></span> needs attention <span class="orb"></span> no sensor data</p><div id="map"></div>`;
+  if(!window.L){$('#map').outerHTML='<p class="err">Map library could not load (needs internet).</p>';return;}
+  const map=L.map('map');L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png',{maxZoom:19,attribution:'&copy; OpenStreetMap contributors'}).addTo(map);
+  const col={green:'#3FA34D',red:'#D23F2A',grey:'#8A948A'};
+  const pts=withLoc.map(f=>{
+    const c=col[f.iot.light]||col.grey;
+    L.circleMarker([f.latitude,f.longitude],{radius:9,color:'#fff',weight:2,fillColor:c,fillOpacity:1}).addTo(map)
+      .bindPopup(`<b>${esc(f.name)}</b><br>Group ${f.group_id} · ${esc(f.village||'')}<br>${esc(f.package_label)}<br>Pending bill ${rs(f.pending_bill)}<br>Last scan: ${f.last_scan?when(f.last_scan)+' · '+esc(f.last_scan_result):'none'}${f.iot.reading?`<br>Soil moisture ${f.iot.reading.soil_moisture}% · ${f.iot.reading.air_temp}°C`:''}`);
+    return [f.latitude,f.longitude];});
+  if(pts.length)map.fitBounds(pts,{padding:[30,30],maxZoom:15});else map.setView([16.3067,80.4365],11);
+};
+
+
+let att={month:null,emp:null,day:null,data:null};
+const monthNow=()=>{const d=new Date();return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}`;};
+V.attendance=async()=>{
+  att.month=att.month||monthNow();
+  const d=await api(`/api/admin/attendance?month=${att.month}`);att.data=d;
+  if(!att.emp||!d.employees.some(e=>e.employee_id===att.emp))att.emp=d.employees[0]?.employee_id??null;
+  const [y,mo]=att.month.split('-').map(Number), daysInMonth=new Date(y,mo,0).getDate();
+  const isThisMonth=att.month===monthNow(), daysSoFar=isThisMonth?new Date().getDate():daysInMonth;
+  $('#main').innerHTML=`<h1>Field attendance</h1>
+  <p class="sub">Each employee takes a live daily field photo with GPS. A day counts as a field day when at least one photo was taken within ${Math.round(d.radius_m)} m of a registered farm.</p>
+  <div class="row"><label>Month <input type="month" id="aMonth" value="${att.month}"></label>
+    <button class="btn" id="aCsv">Download CSV</button><span class="muted">${d.employees.length} employees</span></div>
+  <div class="tablewrap"><table><thead><tr><th>Employee</th><th class="num">Field days</th><th></th><th class="num">Not verified</th><th class="num">Photos</th><th class="num">Hours in field</th><th>Last field day</th></tr></thead><tbody>
+  ${d.employees.map(e=>{const last=[...e.days].reverse().find(x=>x.verified);return `<tr class="pick ${e.employee_id===att.emp?'sel':''}" data-e="${e.employee_id}">
+    <td><b>${esc(e.name)}</b>${e.is_demo?' <span class="tag warn">demo</span>':''}<br><span class="muted">${esc(e.phone)}</span></td>
+    <td class="num"><b class="g" style="font-size:18px">${e.field_days}</b> <span class="muted">/ ${daysSoFar}</span></td>
+    <td><div class="meter"><div style="width:${Math.min(100,e.field_days/Math.max(1,daysSoFar)*100)}%"></div></div></td>
+    <td class="num ${e.unverified_days?'y':''}">${e.unverified_days}</td><td class="num">${e.photos}</td><td class="num">${e.hours}</td>
+    <td>${last?last.day:'<span class="muted">none</span>'}</td></tr>`;}).join('')||'<tr><td colspan="7" class="muted">No employees yet. Add them under Employees & groups.</td></tr>'}</tbody></table></div>
+  <div class="att-layout"><div class="card" id="aCal"></div><div id="aDay"></div></div>`;
+  $('#aMonth').onchange=e=>{att.month=e.target.value||monthNow();att.day=null;V.attendance();};
+  $('#aCsv').onclick=async()=>{const r=await fetch(`/api/admin/attendance.csv?month=${att.month}`,{headers:{'X-Api-Key':key}});
+    if(!r.ok){alert('Could not download the CSV');return;}const b=await r.blob(),u=URL.createObjectURL(b),a=document.createElement('a');
+    a.href=u;a.download=`zemli-attendance-${att.month}.csv`;document.body.appendChild(a);a.click();a.remove();URL.revokeObjectURL(u);};
+  document.querySelectorAll('tr.pick').forEach(tr=>tr.onclick=()=>{att.emp=+tr.dataset.e;att.day=null;
+    document.querySelectorAll('tr.pick').forEach(x=>x.classList.toggle('sel',x===tr));renderAttCal();});
+  renderAttCal();
+};
+function renderAttCal(){
+  const d=att.data, e=d.employees.find(x=>x.employee_id===att.emp);
+  if(!e){$('#aCal').innerHTML='<p class="muted">Pick an employee.</p>';$('#aDay').innerHTML='';return;}
+  const [y,mo]=att.month.split('-').map(Number), first=new Date(y,mo-1,1), n=new Date(y,mo,0).getDate(), lead=(first.getDay()+6)%7;
+  const byDay=Object.fromEntries(e.days.map(x=>[x.day,x]));
+  let cells='';for(let i=0;i<lead;i++)cells+='<div></div>';
+  for(let k=1;k<=n;k++){const ds=`${att.month}-${String(k).padStart(2,'0')}`,x=byDay[ds];
+    cells+=x?`<button class="${x.verified?'ok':'part'} ${ds===att.day?'sel':''}" data-d="${ds}" title="${x.photos} photo(s), ${x.first}${x.photos>1?' to '+x.last:''}">${k}<small>${x.first}</small></button>`:`<button disabled>${k}</button>`;}
+  $('#aCal').innerHTML=`<h2 style="margin:0">${esc(e.name)}</h2><p class="muted" style="margin:4px 0 0">${first.toLocaleDateString('en-IN',{month:'long',year:'numeric'})}:
+    <b class="g">${e.field_days} field days</b>${e.unverified_days?`, <span class="y">${e.unverified_days} not verified</span>`:''}, ${e.hours} h between first and last photo</p>
+    <div class="cal">${['Mon','Tue','Wed','Thu','Fri','Sat','Sun'].map(h=>`<div class="h">${h}</div>`).join('')}${cells}</div>
+    <p class="muted" style="font-size:13px;margin:12px 0 0"><span class="g">■</span> field day (near a farm) &nbsp; <span class="y">■</span> photo taken but away from farms or without GPS &nbsp; Click a day to see its photos.</p>`;
+  document.querySelectorAll('#aCal button[data-d]').forEach(b=>b.onclick=()=>{att.day=b.dataset.d;renderAttCal();});
+  if(!att.day){const last=[...e.days].reverse()[0];att.day=last?.day||null;if(att.day){renderAttCal();return;}}
+  loadAttDay(e);
+}
+async function loadAttDay(e){
+  if(!att.day){$('#aDay').innerHTML='<div class="card muted">No field photos this month.</div>';return;}
+  const vs=await api(`/api/admin/attendance/${e.employee_id}/${att.day}`);
+  const dsum=e.days.find(x=>x.day===att.day);
+  $('#aDay').innerHTML=`<div class="card ${dsum?.verified?'glow':''}" style="margin-bottom:14px"><h2 style="margin:0">${new Date(att.day+'T00:00').toLocaleDateString('en-IN',{weekday:'long',day:'numeric',month:'long'})}</h2>
+    <p class="muted" style="margin:4px 0 0">${vs.length} photo(s) · ${dsum?`${dsum.first}${dsum.photos>1?` to ${dsum.last} (${dsum.hours} h)`:''}`:''} · ${dsum?.verified?'<span class="g">counted as a field day</span>':'<span class="y">not counted</span>'}</p></div>
+    <div id="attMap"></div>
+    <div class="visits">${vs.map(v=>`<div class="card"><a href="${esc(v.image_url)}" target="_blank" rel="noopener"><img src="${esc(v.image_url)}" alt="Field photo at ${esc(v.time_ist)}" loading="lazy"></a><div class="body">
+      <b style="font-size:15px">${esc(v.time_ist)}</b> ${v.verified?'<span class="tag">counted</span>':'<span class="tag warn">not counted</span>'}<br>
+      ${v.latitude!=null?`<a href="https://www.google.com/maps?q=${v.latitude},${v.longitude}" target="_blank" rel="noopener">${v.latitude.toFixed(5)}, ${v.longitude.toFixed(5)}</a>${v.accuracy_m!=null?` <span class="muted">±${Math.round(v.accuracy_m)} m</span>`:''}`:'<span class="r">No GPS</span>'}<br>
+      ${v.nearest_farmer?`Nearest farm: <b>${esc(v.nearest_farmer)}</b> · ${v.distance_m} m`:'<span class="muted">No farm to compare</span>'}<br>
+      <span class="muted">Uploaded ${when(v.received_at)}</span>
+      ${v.flags.length?`<br>${v.flags.map(f=>`<span class="tag bad">${esc(f)}</span>`).join(' ')}`:''}</div></div>`).join('')}</div>`;
+  if(!window.L||!vs.some(v=>v.latitude!=null)){$('#attMap').remove();return;}
+  const map=L.map('attMap');L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png',{maxZoom:19,attribution:'&copy; OpenStreetMap contributors'}).addTo(map);
+  const pts=[];
+  vs.forEach(v=>{if(v.latitude==null)return;
+    L.circleMarker([v.latitude,v.longitude],{radius:9,color:'#fff',weight:2,fillColor:v.verified?'#5EE07F':'#FF6A55',fillOpacity:1}).addTo(map).bindPopup(`<b>${esc(v.time_ist)}</b><br>${v.nearest_farmer?`${esc(v.nearest_farmer)} · ${v.distance_m} m`:''}`);
+    pts.push([v.latitude,v.longitude]);
+    if(v.farm_lat!=null){L.circleMarker([v.farm_lat,v.farm_lon],{radius:6,color:'#F5B835',weight:2,fillOpacity:.2}).addTo(map).bindPopup(`Farm: ${esc(v.nearest_farmer)}`);
+      L.polyline([[v.latitude,v.longitude],[v.farm_lat,v.farm_lon]],{color:'#F5B835',weight:1.5,dashArray:'4 4'}).addTo(map);pts.push([v.farm_lat,v.farm_lon]);}});
+  map.fitBounds(pts,{padding:[30,30],maxZoom:16});
+}
+V.audit=async()=>{
+  const d=$('#aDate')?.value||new Date().toISOString().slice(0,10), emp=$('#aEmp')?.value||'';
+  const [rows,team]=await Promise.all([api(`/api/admin/audit?date=${d}${emp?'&employee='+encodeURIComponent(emp):''}`),api('/api/admin/employees')]);
+  const flagged=rows.filter(r=>r.flags.length).length;
+  $('#main').innerHTML=`<h1>Daily photo audit</h1><p class="sub">Every crop scan photo with its GPS and time. Photos taken more than 500 m from the farmer's saved location are flagged.</p>
+  <div class="row"><input type="date" id="aDate" value="${d}"><select id="aEmp"><option value="">All employees</option>${team.employees.map(e=>`<option value="E${e.id}" ${emp==='E'+e.id?'selected':''}>${esc(e.name)}</option>`).join('')}</select>
+  <span class="muted">${rows.length} photos · ${flagged} flagged</span></div>
+  <div class="audit">${rows.map(r=>`<div class="card"><a href="${esc(r.image_url)}" target="_blank" rel="noopener"><img src="${esc(r.image_url)}" alt="Field photo" loading="lazy"></a><div class="body">
+    <b>${esc(r.farmer||'No farmer')}</b> · ${esc(r.crop)}<br>${esc(r.result)}<br><span class="muted">${esc(r.employee_name)} · taken ${when(r.captured_at)}</span><br>
+    ${r.latitude!=null?`<a href="https://www.google.com/maps?q=${r.latitude},${r.longitude}" target="_blank" rel="noopener">${r.latitude.toFixed(5)}, ${r.longitude.toFixed(5)}</a>`:''}${r.distance_m!=null?` · ${r.distance_m} m from farm`:''}<br>
+    ${r.flags.map(f=>`<span class="tag bad">${esc(f)}</span>`).join(' ')||'<span class="tag">OK</span>'}</div></div>`).join('')||'<p class="muted">No photos on this day.</p>'}</div>`;
+  $('#aDate').onchange=$('#aEmp').onchange=()=>V.audit();
+};
+
+V.farmers=async()=>{
+  const fs=await api('/api/admin/farmers');
+  $('#main').innerHTML=`<h1>Farmers</h1><p class="sub">${fs.length} farmers. Edit subsidy and loan figures as approvals arrive; farmers see them in their app.</p>
+  <div class="tablewrap"><table><thead><tr><th>Group</th><th>Name</th><th>Phone</th><th>Package</th><th>Bank / IFSC</th><th>Aadhaar</th><th>Survey</th>
+  <th class="num">Subsidy received</th><th class="num">Subsidy approved</th><th class="num">Loan approved</th><th class="num">Loan repaid</th><th class="num">Pending bill</th><th>IoT</th><th></th></tr></thead>
+  <tbody>${fs.map(f=>`<tr data-id="${f.id}"><td>${f.group_id}</td><td><b>${esc(f.name)}</b>${f.is_demo?' <span class="tag warn">demo</span>':''}</td><td>${esc(f.phone)}</td><td>${esc(f.package_label)}</td>
+    <td>${esc(f.bank_account||'-')}<br><span class="muted">${esc(f.ifsc||'')}</span></td><td>${esc(f.aadhaar||'-')}</td><td>${esc(f.survey_no||'-')}</td>
+    <td class="num"><input type="number" data-k="subsidy_received" value="${f.subsidy_received}"></td><td class="num"><input type="number" data-k="subsidy" value="${f.subsidy}"></td>
+    <td class="num"><input type="number" data-k="loan_approved" value="${f.loan_approved}"></td><td class="num">${rs(f.loan_repaid)}</td><td class="num">${rs(f.pending_bill)}</td>
+    <td><span class="orb ${f.iot.light}"></span></td><td><button class="btn" data-save="${f.id}">Save</button></td></tr>`).join('')}</tbody></table></div>`;
+  document.querySelectorAll('[data-save]').forEach(b=>b.onclick=async()=>{
+    const tr=b.closest('tr'), body={};tr.querySelectorAll('input[data-k]').forEach(i=>body[i.dataset.k]=+i.value);
+    b.disabled=true;try{await api(`/api/admin/farmers/${b.dataset.save}`,{method:'PUT',body:JSON.stringify(body)});b.textContent='Saved ✓';}catch(e){alert(e.message);}b.disabled=false;});
+};
+
+V.team=async()=>{
+  const t=await api('/api/admin/employees');
+  $('#main').innerHTML=`<h1>Employees & groups</h1><p class="sub">Employees log in to the app with their phone number. Assign each group of 10 farmers to an employee.</p>
+  <div class="card" style="margin-bottom:16px"><b>Add employee</b><div class="row" style="margin:10px 0 0"><input id="eName" placeholder="Name"><input id="ePhone" placeholder="10-digit phone"><button class="btn primary" id="eAdd">Add</button><span class="err" id="eErr"></span></div></div>
+  <div class="tablewrap" style="margin-bottom:18px"><table><thead><tr><th>Employee</th><th>Phone</th><th>Status</th></tr></thead><tbody>
+  ${t.employees.map(e=>`<tr><td>${esc(e.name)}${e.is_demo?' <span class="tag warn">demo</span>':''}</td><td>${esc(e.phone)}</td><td>${e.active?'<span class="tag">active</span>':'<span class="tag bad">inactive</span>'}</td></tr>`).join('')||'<tr><td colspan="3" class="muted">No employees yet.</td></tr>'}</tbody></table></div>
+  <div class="tablewrap"><table><thead><tr><th>Group</th><th>Village</th><th>Employee</th><th></th></tr></thead><tbody>
+  ${t.groups.map(g=>`<tr><td>${esc(g.name)}</td><td><input data-v="${g.id}" value="${esc(g.village||'')}"></td><td><select data-e="${g.id}"><option value="">Not assigned</option>${t.employees.map(e=>`<option value="${e.id}" ${e.id===g.employee_id?'selected':''}>${esc(e.name)}</option>`).join('')}</select></td>
+  <td><button class="btn" data-g="${g.id}">Save</button></td></tr>`).join('')}</tbody></table></div>`;
+  $('#eAdd').onclick=async()=>{try{await api('/api/admin/employees',{method:'POST',body:JSON.stringify({name:$('#eName').value,phone:$('#ePhone').value})});V.team();}catch(e){$('#eErr').textContent=e.message;}};
+  document.querySelectorAll('[data-g]').forEach(b=>b.onclick=async()=>{const id=b.dataset.g;const ev=document.querySelector(`[data-e="${id}"]`).value;
+    await api(`/api/admin/groups/${id}`,{method:'PUT',body:JSON.stringify({employee_id:ev?+ev:null,village:document.querySelector(`[data-v="${id}"]`).value||null})});b.textContent='Saved ✓';});
+};
+
+V.money=async()=>{
+  const [fs,payouts]=await Promise.all([api('/api/admin/farmers'),api('/api/admin/payouts')]);
+  const g=+($('#mGroup')?.value||1);
+  const members=fs.filter(f=>f.group_id===g);
+  $('#main').innerHTML=`<h1>Money splitter & DBT</h1>
+  <p class="note"><b>Prototype:</b> "Send to bank" records the payment, recovers the seed bills and EMI, and shows the slip in the farmer's app. No real money moves. For the live trial, connect a licensed escrow / payout partner and bank so this button triggers the actual transfer.</p>
+  <div class="row"><label>Group <select id="mGroup">${[...Array(10)].map((_,i)=>`<option value="${i+1}" ${g===i+1?'selected':''}>Group ${i+1}</option>`).join('')}</select></label>
+  <label>Buyer <input id="mBuyer" value="BigBasket"></label><label>Crop <input id="mCrop" value="Tomato"></label><label>Rate ₹/kg <input id="mRate" type="number" step="0.01" style="width:90px"></label></div>
+  <div class="tablewrap"><table><thead><tr><th>Farmer</th><th class="num">Quantity (kg)</th><th class="num">Gross ₹</th><th class="num">Pending seed bill</th><th class="num">EMI override ₹</th></tr></thead><tbody>
+  ${members.map(f=>`<tr data-f="${f.id}"><td>${esc(f.name)}${f.bank_account&&f.ifsc?'':' <span class="tag bad">no bank details</span>'}</td><td class="num"><input type="number" data-q></td><td class="num"><input type="number" data-gross></td><td class="num">${rs(f.pending_bill)}</td><td class="num"><input type="number" data-emi placeholder="default"></td></tr>`).join('')||'<tr><td colspan="5" class="muted">No farmers in this group.</td></tr>'}</tbody></table></div>
+  <div class="row" style="margin-top:12px"><button class="btn" id="mCalc">Calculate deductions</button><button class="btn primary" id="mCreate" disabled>Create payouts</button><span class="err" id="mErr"></span></div>
+  <div id="mPrev"></div>
+  <h2 style="font-size:18px;margin-top:26px">Payouts</h2>
+  <div class="tablewrap"><table><thead><tr><th>Date</th><th>Farmer</th><th>Buyer / crop</th><th class="num">Gross</th><th class="num">− Seed bill</th><th class="num">− Loan EMI</th><th class="num">= Profit to bank</th><th>Bank</th><th>Status</th></tr></thead><tbody>
+  ${payouts.map(p=>`<tr><td>${when(p.created_at)}</td><td>${esc(p.farmer)}</td><td>${esc(p.buyer)} ${esc(p.crop||'')}</td><td class="num">${rs(p.gross)}</td><td class="num">${rs(p.input_deduction)}</td><td class="num">${rs(p.emi_deduction)}</td><td class="num"><b>${rs(p.net)}</b></td>
+  <td>${esc(p.bank_account||'-')} ${esc(p.ifsc||'')}</td><td>${p.status==='paid'?`<span class="tag">paid · ${esc(p.reference)}</span>`:`<button class="btn primary" data-pay="${p.id}">Send to bank (DBT)</button>`}</td></tr>`).join('')||'<tr><td colspan="9" class="muted">No payouts yet.</td></tr>'}</tbody></table></div>`;
+  $('#mGroup').onchange=()=>V.money();
+  const fill=()=>{const rate=+$('#mRate').value;document.querySelectorAll('tr[data-f]').forEach(tr=>{const q=+tr.querySelector('[data-q]').value;if(rate&&q)tr.querySelector('[data-gross]').value=(q*rate).toFixed(2);});};
+  $('#mRate').oninput=fill;document.querySelectorAll('[data-q]').forEach(i=>i.oninput=fill);
+  const lines=()=>[...document.querySelectorAll('tr[data-f]')].map(tr=>({farmer_id:+tr.dataset.f,gross:+tr.querySelector('[data-gross]').value||0,buyer:$('#mBuyer').value,crop:$('#mCrop').value,
+    quantity_kg:+tr.querySelector('[data-q]').value||null,rate_per_kg:+$('#mRate').value||null,emi:tr.querySelector('[data-emi]').value===''?null:+tr.querySelector('[data-emi]').value})).filter(l=>l.gross>0);
+  $('#mCalc').onclick=async()=>{$('#mErr').textContent='';const ls=lines();if(!ls.length){$('#mErr').textContent='Enter quantity and rate, or gross amounts.';return;}
+    const pv=await api('/api/admin/payouts/preview',{method:'POST',body:JSON.stringify({lines:ls})});
+    $('#mPrev').innerHTML=`<div class="tablewrap" style="margin-top:12px"><table><thead><tr><th>Farmer</th><th class="num">Total income</th><th class="num">− Seed bill</th><th class="num">− Loan EMI</th><th class="num">= Profit to bank</th><th class="num">Loan left after</th></tr></thead><tbody>
+    ${pv.map(p=>`<tr><td>${esc(p.farmer)}${p.missing_bank?' <span class="tag bad">no bank details</span>':''}</td><td class="num">${rs(p.gross)}</td><td class="num">${rs(p.input_deduction)}</td><td class="num">${rs(p.emi_deduction)}</td><td class="num"><b>${rs(p.net)}</b></td><td class="num">${rs(p.loan_remaining_after)}</td></tr>`).join('')}
+    <tr><td><b>Total</b></td><td class="num"><b>${rs(pv.reduce((a,p)=>a+p.gross,0))}</b></td><td class="num">${rs(pv.reduce((a,p)=>a+p.input_deduction,0))}</td><td class="num">${rs(pv.reduce((a,p)=>a+p.emi_deduction,0))}</td><td class="num"><b>${rs(pv.reduce((a,p)=>a+p.net,0))}</b></td><td></td></tr></tbody></table></div>`;
+    $('#mCreate').disabled=false;};
+  $('#mCreate').onclick=async()=>{$('#mCreate').disabled=true;await api('/api/admin/payouts',{method:'POST',body:JSON.stringify({lines:lines()})});V.money();};
+  document.querySelectorAll('[data-pay]').forEach(b=>b.onclick=async()=>{if(!confirm('Record this payment to the farmer\'s bank account?'))return;b.disabled=true;await api(`/api/admin/payouts/${b.dataset.pay}/pay`,{method:'POST'});V.money();});
+};
+
+V.iot=async()=>{
+  const [devs,fs]=await Promise.all([api('/api/admin/devices'),api('/api/admin/farmers')]);
+  $('#main').innerHTML=`<h1>IoT devices</h1><p class="sub">ESP32 + 4G boxes. Each box sends readings every 15 minutes to <code>POST /api/iot/reading</code> with its ID and key.</p>
+  <div class="card" style="margin-bottom:16px"><b>Register a box</b><div class="row" style="margin:10px 0 0"><input id="dId" placeholder="Box ID, e.g. ZM-0001"><select id="dF"><option value="">Choose farmer</option>${fs.map(f=>`<option value="${f.id}">G${f.group_id} · ${esc(f.name)}</option>`).join('')}</select><button class="btn primary" id="dAdd">Register</button></div><p id="dOut" class="muted"></p></div>
+  <div class="tablewrap"><table><thead><tr><th>Box</th><th>Farmer</th><th>Status</th><th class="num">Soil moisture</th><th class="num">Air temp</th><th class="num">Humidity</th><th class="num">N / P / K</th><th>Last seen</th><th>Key</th></tr></thead><tbody>
+  ${devs.map(d=>{const r=d.status.reading||{};return `<tr><td>${esc(d.id)}</td><td>${esc(d.farmer||'-')}</td><td><span class="orb ${d.status.light}"></span> ${d.status.online?(d.status.moisture==='dry'?'<span class="tag bad">dry</span>':'online'):'offline'}</td>
+  <td class="num">${r.soil_moisture??'-'}%</td><td class="num">${r.air_temp??'-'}°C</td><td class="num">${r.humidity??'-'}%</td><td class="num">${r.nitrogen??'-'} / ${r.phosphorus??'-'} / ${r.potassium??'-'}</td><td>${when(d.last_seen)}</td><td><code>${esc(d.key)}</code></td></tr>`;}).join('')||'<tr><td colspan="9" class="muted">No boxes yet.</td></tr>'}</tbody></table></div>`;
+  $('#dAdd').onclick=async()=>{try{const d=await api('/api/admin/devices',{method:'POST',body:JSON.stringify({device_id:$('#dId').value,farmer_id:$('#dF').value?+$('#dF').value:null})});
+    $('#dOut').innerHTML=`Registered <b>${esc(d.id)}</b>. Put this key in the box's code: <code>${esc(d.key)}</code>`;setTimeout(V.iot,2500);}catch(e){$('#dOut').textContent=e.message;}};
+};
+
+V.demo=async()=>{
+  const otps=await api('/api/admin/otps');
+  $('#main').innerHTML=`<h1>Demo & login codes</h1>
+  <div class="card" style="margin-bottom:16px"><b>Demo data</b><p class="muted">Adds a demo employee (phone 9000000001), 20 farmers in Groups 1 and 2 around Guntur, khata entries and 6 IoT boxes with 24 hours of readings. Everything is marked "demo" and can be removed.</p>
+  <button class="btn primary" id="dLoad">Load demo data</button> <button class="btn" id="dDel">Remove demo data</button><p id="dMsg" class="muted"></p></div>
+  <div class="card"><b>Active login codes</b> <span class="muted">(OTP demo mode only)</span>
+  <div class="tablewrap" style="margin-top:10px"><table><thead><tr><th>Phone</th><th>Code</th><th>Expires</th></tr></thead><tbody>${otps.map(o=>`<tr><td>${esc(o.phone)}</td><td><b>${esc(o.code)}</b></td><td>${when(o.expires)}</td></tr>`).join('')||'<tr><td colspan="3" class="muted">None right now.</td></tr>'}</tbody></table></div></div>`;
+  $('#dLoad').onclick=async()=>{const r=await api('/api/admin/demo-data',{method:'POST'});$('#dMsg').textContent=r.note||`Loaded. Employee login: ${r.employee_phone}. Farmer logins: ${r.farmer_phones.join(', ')} …`;};
+  $('#dDel').onclick=async()=>{if(!confirm('Remove all demo farmers and their data?'))return;const r=await api('/api/admin/demo-data',{method:'DELETE'});$('#dMsg').textContent=`Removed ${r.removed_farmers} demo farmers.`;};
+};
+window.addEventListener('hashchange',()=>{const v=location.hash.slice(1);if(v&&v!==cur)go(v);});
+go(location.hash.slice(1)||'overview');
+</script>
+</body>
+</html>

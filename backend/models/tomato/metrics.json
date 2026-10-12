@@ -1,0 +1,242 @@
+{
+  "crop": "tomato",
+  "arch": "efficientnet_b0",
+  "classes": [
+    "early_blight",
+    "healthy",
+    "late_blight",
+    "leaf_curl_virus",
+    "leaf_mold",
+    "septoria_leaf_spot",
+    "spider_mites"
+  ],
+  "train_images": 11401,
+  "val": {
+    "images": 1426,
+    "accuracy": 0.9986,
+    "macro_f1": 0.9989,
+    "per_class": {
+      "early_blight": {
+        "precision": 1.0,
+        "recall": 1.0,
+        "f1": 1.0,
+        "support": 100
+      },
+      "healthy": {
+        "precision": 1.0,
+        "recall": 1.0,
+        "f1": 1.0,
+        "support": 159
+      },
+      "late_blight": {
+        "precision": 1.0,
+        "recall": 1.0,
+        "f1": 1.0,
+        "support": 191
+      },
+      "leaf_curl_virus": {
+        "precision": 1.0,
+        "recall": 0.9963,
+        "f1": 0.9981,
+        "support": 536
+      },
+      "leaf_mold": {
+        "precision": 1.0,
+        "recall": 1.0,
+        "f1": 1.0,
+        "support": 95
+      },
+      "septoria_leaf_spot": {
+        "precision": 1.0,
+        "recall": 1.0,
+        "f1": 1.0,
+        "support": 177
+      },
+      "spider_mites": {
+        "precision": 0.9882,
+        "recall": 1.0,
+        "f1": 0.9941,
+        "support": 168
+      }
+    },
+    "confusion_matrix": [
+      [
+        100,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ],
+      [
+        0,
+        159,
+        0,
+        0,
+        0,
+        0,
+        0
+      ],
+      [
+        0,
+        0,
+        191,
+        0,
+        0,
+        0,
+        0
+      ],
+      [
+        0,
+        0,
+        0,
+        534,
+        0,
+        0,
+        2
+      ],
+      [
+        0,
+        0,
+        0,
+        0,
+        95,
+        0,
+        0
+      ],
+      [
+        0,
+        0,
+        0,
+        0,
+        0,
+        177,
+        0
+      ],
+      [
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        168
+      ]
+    ]
+  },
+  "test_public": {
+    "images": 1429,
+    "accuracy": 0.9972,
+    "macro_f1": 0.9956,
+    "per_class": {
+      "early_blight": {
+        "precision": 0.9802,
+        "recall": 0.99,
+        "f1": 0.9851,
+        "support": 100
+      },
+      "healthy": {
+        "precision": 1.0,
+        "recall": 1.0,
+        "f1": 1.0,
+        "support": 160
+      },
+      "late_blight": {
+        "precision": 0.9947,
+        "recall": 0.9895,
+        "f1": 0.9921,
+        "support": 191
+      },
+      "leaf_curl_virus": {
+        "precision": 1.0,
+        "recall": 1.0,
+        "f1": 1.0,
+        "support": 536
+      },
+      "leaf_mold": {
+        "precision": 0.9897,
+        "recall": 1.0,
+        "f1": 0.9948,
+        "support": 96
+      },
+      "septoria_leaf_spot": {
+        "precision": 1.0,
+        "recall": 0.9944,
+        "f1": 0.9972,
+        "support": 178
+      },
+      "spider_mites": {
+        "precision": 1.0,
+        "recall": 1.0,
+        "f1": 1.0,
+        "support": 168
+      }
+    },
+    "confusion_matrix": [
+      [
+        99,
+        0,
+        1,
+        0,
+        0,
+        0,
+        0
+      ],
+      [
+        0,
+        160,
+        0,
+        0,
+        0,
+        0,
+        0
+      ],
+      [
+        2,
+        0,
+        189,
+        0,
+        0,
+        0,
+        0
+      ],
+      [
+        0,
+        0,
+        0,
+        536,
+        0,
+        0,
+        0
+      ],
+      [
+        0,
+        0,
+        0,
+        0,
+        96,
+        0,
+        0
+      ],
+      [
+        0,
+        0,
+        0,
+        0,
+        1,
+        177,
+        0
+      ],
+      [
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        168
+      ]
+    ]
+  }
+}

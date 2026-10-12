@@ -1,0 +1,15 @@
+{
+  "name": "Zemli Agritech",
+  "short_name": "Zemli",
+  "description": "Crop disease checks for tomato, cucumber and coriander",
+  "start_url": "/app",
+  "scope": "/",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#07110C",
+  "theme_color": "#07110C",
+  "icons": [
+    {"src": "/static/icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any maskable"},
+    {"src": "/static/icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any maskable"}
+  ]
+}

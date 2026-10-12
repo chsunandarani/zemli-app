@@ -1,0 +1,29 @@
+name: zemli_field
+description: Zemli field app - offline crop disease scanning for tomato, cucumber and coriander.
+publish_to: "none"
+version: 0.1.0+1
+
+environment:
+  sdk: ">=3.3.0 <4.0.0"
+
+dependencies:
+  flutter:
+    sdk: flutter
+  http: ^1.2.1
+  image_picker: ^1.1.2
+  geolocator: ^12.0.0
+  tflite_flutter: ^0.11.0
+  image: ^4.2.0
+  path_provider: ^2.1.3
+  shared_preferences: ^2.2.3
+  uuid: ^4.4.0
+  web_socket_channel: ^3.0.1
+
+dev_dependencies:
+  flutter_lints: ^4.0.0
+
+flutter:
+  uses-material-design: true
+  assets:
+    - assets/disease_info.json
+    - assets/models/
