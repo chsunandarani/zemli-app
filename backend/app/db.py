@@ -36,6 +36,8 @@ class Scan(SQLModel, table=True):
     gate_label: Optional[str] = None       # what the crop-check model thinks the photo shows
     gate_confidence: Optional[float] = None
     source: Optional[str] = None            # "camera" (live, in the app) or "upload" (file / gallery)
+    ai_engine: Optional[str] = None         # "gemini" or "local" (trained models)
+    ai_note: Optional[str] = None           # JSON from Gemini: names, explanation, advice, severity, model
 
     status: str = Field(default="needs_review", index=True)  # needs_review | auto_healthy | rejected | verified
     final_label: Optional[str] = None
@@ -185,7 +187,7 @@ def init_db() -> None:
     from sqlalchemy import inspect, text
     have = {c["name"] for c in inspect(engine).get_columns("scan")}
     with engine.begin() as conn:
-        for name, sql_type in [("gate_label", "VARCHAR"), ("gate_confidence", "FLOAT"), ("source", "VARCHAR")]:
+        for name, sql_type in [("gate_label", "VARCHAR"), ("gate_confidence", "FLOAT"), ("source", "VARCHAR"), ("ai_engine", "VARCHAR"), ("ai_note", "TEXT")]:
             if name not in have:
                 conn.execute(text(f"ALTER TABLE scan ADD COLUMN {name} {sql_type}"))
 

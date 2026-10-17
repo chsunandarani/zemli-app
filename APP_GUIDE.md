@@ -51,6 +51,24 @@ Use the cloudflared `https://` address on a phone for the camera and GPS.
 - Money splitter & DBT: enter the buyer payment per farmer (quantity × rate), see the deductions, create payouts, "Send to bank".
 - IoT devices: register a box for a farmer and get its key.
 
+## Disease detection with Gemini (optional, recommended for the prototype)
+
+Set `GEMINI_API_KEY` on the server (key from https://aistudio.google.com/apikey). Every scan is then sent to
+Gemini, which identifies the crop (tomato / cucumber / coriander / not related) and the disease, with a short
+explanation and Telugu advice. Coriander works too, without a trained model.
+
+- The key lives only on the server, never in the app or APK.
+- Photos are shrunk to 1024 px and their hidden GPS/EXIF data removed before being sent to Google.
+- If Gemini fails or hits its free limit, the trained models are used instead; `/api/health` shows the last Gemini error.
+- Diseases always go to the agronomist's review desk. For known diseases the app shows the agronomist-reviewed advice
+  from `disease_info.json`; for problems outside that list ("other problem") it shows Gemini's advice, marked as AI advice.
+- **Any crop:** besides tomato, cucumber and coriander, Gemini also diagnoses any other crop (chilli, brinjal, paddy, cotton…).
+  These are saved as "Other crop" with the real crop name in English and Telugu, and the advice is marked as AI advice.
+  Only photos with no plant at all are rejected. If someone picks the wrong crop, the result is given for the crop actually
+  seen, with a note. Set `ALL_CROPS=0` to limit it to the three pilot crops again.
+- `GEMINI_MODEL` (default `gemini-flash-latest`) chooses the model. `AI_ENGINE=local` switches Gemini off.
+- On the free tier Google may use the photos to improve its products, and daily limits apply. Use a paid key for the real pilot.
+
 ## IoT
 
 - `iot/esp32_zemli_sensor.ino`: ESP32 + 4G (SIM7600 / A7670C) box that reads soil moisture, DHT22 temperature/humidity and an RS485 NPK sensor every 15 minutes and posts to `/api/iot/reading`. Prototype code: calibrate the moisture sensor and check your NPK sensor's Modbus registers.

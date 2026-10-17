@@ -98,7 +98,7 @@ async function api(path,opts={}){
   return r.json();
 }
 const cropName=id=>crops[id]?crops[id].name_en:id;
-const labelName=(crop,l)=>{if(!l)return'Not sure';if(l==='unclear_photo')return'Unclear photo';if(l==='not_this_crop')return'Not this crop';const t=l.replaceAll('_',' ');return t[0].toUpperCase()+t.slice(1);};
+const labelName=(crop,l)=>{if(!l)return'Not sure';if(l==='unclear_photo')return'Unclear photo';if(l==='not_this_crop')return'Not this crop';if(l==='other_problem')return'Other problem (write it in the note)';const t=l.replaceAll('_',' ');return t[0].toUpperCase()+t.slice(1);};
 function ago(iso){if(!iso)return'';const m=Math.round((Date.now()-new Date(iso))/60000);return m<1?'just now':m<60?m+' min ago':m<1440?Math.round(m/60)+' h ago':new Date(iso).toLocaleDateString();}
 const statusText={needs_review:'Needs review',auto_healthy:'Healthy (auto)',rejected:'Not this crop',verified:'Verified'};
 
@@ -114,7 +114,7 @@ function renderList(newId){
     <button class="row ${s.id===selectedId?'sel':''} ${s.id===newId?'new':''}" data-id="${s.id}">
       <img src="${esc(s.image_url)}" alt="" loading="lazy">
       <div><b>${esc(s.result.name_en)}</b>${s.server_confidence!=null&&!s.final_label?` <span class="meta">${Math.round(s.server_confidence*100)}%</span>`:''}
-        <div class="meta">${esc(cropName(s.crop))}, ${esc(s.employee_id)}, ${ago(s.received_at)}</div>
+        <div class="meta">${esc(s.crop==='other_crop'&&s.ai&&s.ai.crop_name_en?s.ai.crop_name_en:cropName(s.crop))}, ${esc(s.employee_id)}, ${ago(s.received_at)}</div>
         <span class="tag ${s.status}">${statusText[s.status]}</span></div>
     </button>`).join(''):`<p class="counts">Nothing here. Scans will appear as soon as field staff upload them.</p>`;
   document.querySelectorAll('.row').forEach(b=>b.onclick=()=>{selectedId=+b.dataset.id;renderList();renderDetail();});
@@ -122,10 +122,11 @@ function renderList(newId){
 function renderDetail(){
   const s=scans.find(x=>x.id===selectedId);
   if(!s){return;}
-  const labels=[...(crops[s.crop]?.classes||[]),'unclear_photo','not_this_crop'];
+  const labels=[...(crops[s.crop]?.classes||[]),'other_problem','unclear_photo','not_this_crop'];
   const preselect=s.final_label||(s.status==='rejected'?'not_this_crop':s.server_label)||'';
   const gateNote=s.gate_label?`<p class="sub">Crop check: looks like <b>${esc(s.gate_label==='other'?'not a related leaf':cropName(s.gate_label))}</b> (${Math.round(s.gate_confidence*100)}%)${s.status==='rejected'?'. The disease model was not run. If the crop check is wrong, pick the right diagnosis below.':''}</p>`:'';
   const srcNote=s.source==='upload'?`<p class="sub"><span class="tag rejected">Uploaded file</span> not taken with the live camera${s.captured_at?'':' · no date saved in the photo'}</p>`:'';
+  const aiNote=s.ai&&s.ai.engine==='gemini'?`<p class="sub"><span class="tag verified">Gemini AI</span> ${s.ai.crop_name_en?'<b>'+esc(s.ai.crop_name_en)+'</b> · ':''}${esc(s.ai.name_en||'')}${s.ai.picked?' · <span class="tag needs_review">user picked '+esc(s.ai.picked)+'</span>':''}${s.ai.severity&&s.ai.severity!=='none'?' · severity '+esc(s.ai.severity):''}<br>${esc(s.ai.explanation_en||'')}</p>`:'';
   const bars=s.status==='rejected'?'':s.top_predictions.length?s.top_predictions.map(p=>`
       <div class="bar"><span><span>${esc(labelName(s.crop,p.label))}</span><span>${Math.round(p.confidence*100)}%</span></span>
       <div class="track"><div class="fill ${p.confidence<0.7?'low':''}" style="width:${p.confidence*100}%"></div></div></div>`).join('')
@@ -137,7 +138,7 @@ function renderDetail(){
       <div>
         <h2>${esc(s.result.name_en)}</h2>
         <p class="sub">${esc(cropName(s.crop))}, ${statusText[s.status]}${s.reviewer?` by ${esc(s.reviewer)}`:''}</p>
-        ${srcNote}${gateNote}${bars}
+        ${srcNote}${aiNote}${gateNote}${bars}
         <div class="advice"><p>${esc(s.result.advice_en)}</p><p class="te">${esc(s.result.advice_te)}</p></div>
         <fieldset><legend>Your diagnosis</legend>
           <div class="labels">${labels.map(l=>`<label><input type="radio" name="lab" value="${l}" ${l===preselect?'checked':''}><span>${esc(labelName(s.crop,l))}</span></label>`).join('')}</div>

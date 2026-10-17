@@ -1,56 +1,76 @@
-# Share Zemli with your team: permanent link + Android APK
+# Share Zemli with your team: free online link + Android APK
 
-An APK of this app is a wrapper around the web app, so the server must always be reachable at a
-fixed address. Step 1 gives you that address for free. Step 2 turns it into an APK.
+An APK of this app is a wrapper around the web app, so the server must be online at a fixed address.
+This guide uses **Render**. `render.yaml` is set up for the always-on plan: a Starter instance (about $7/month) that never sleeps, plus a 1 GB disk so data is kept. To test for free instead, change `plan: starter` to `plan: free` and delete the four `disk:` lines (then it sleeps after 15 minutes and data resets).
 
-## Step 1: Free permanent link on Hugging Face Spaces (about 20 minutes)
+## Step 1: Put the code on GitHub (about 10 minutes)
 
-1. Make a free account at https://huggingface.co.
-2. Click your profile picture → **New Space**.
-   - Space name: `zemli`
-   - SDK: **Docker**, template **Blank**
-   - Hardware: **CPU basic (free)**
-   - Visibility: **Public** (a private Space asks every visitor to log in to Hugging Face, which breaks the app). The app itself still needs phone + OTP login, and the admin panel needs your key.
-3. In the new Space, open **Files → Add file → Upload files**. From `D:\zemli-prototype\zemli\backend`, drag in:
-   - `Dockerfile`, `.dockerignore`, `requirements.txt`
-   - the `app` folder
-   - the `models` folder (your trained tomato, cucumber and gate models)
+1. Extract the latest `zemli-prototype.zip` into a **new** folder, for example `D:\zemli-upload`.
+   (Don't upload from `D:\zemli-prototype`: it contains `.venv`, thousands of files you must not upload.)
+2. Copy your trained models into it: copy the folder `D:\zemli-prototype\zemli\backend\models`
+   to `D:\zemli-upload\zemli\backend\models` (it holds `tomato`, `cucumber`, `gate`).
+3. On github.com: **+ → New repository**, name `zemli-app`, choose **Private**, click **Create repository**.
+4. On the new repository page click **uploading an existing file**. Open `D:\zemli-upload\zemli`, select
+   **everything inside it** (`backend`, `iot`, `mobile`, `training`, `render.yaml`, `.gitignore` and the .md files)
+   and drag it into the browser. Click **Commit changes**.
+   Check that `render.yaml` is at the top level of the repository and `backend/models/tomato/model.onnx` exists.
+   (Browser uploads allow files up to 25 MB; the models are usually about 16 to 22 MB.)
 
-   Do **not** upload `.venv`, `zemli.db`, `uploads` or `start.ps1`. Click **Commit changes**.
-4. Open **Settings → Variables and secrets → New secret**: name `ZEMLI_API_KEY`, value = a long random key. Restart the Space if it asks.
-5. Watch the **Logs**. When the status turns **Running**, your app is at:
-   - App: `https://YOUR-USERNAME-zemli.hf.space/app`
-   - Admin: `https://YOUR-USERNAME-zemli.hf.space/admin`
+## Step 2: Start the server on Render (about 10 minutes)
 
-   (Replace YOUR-USERNAME with your Hugging Face username. The **Embed this Space / direct URL** option in the Space menu shows the exact address.)
+1. Go to https://render.com, click **Get started**, and sign up **with GitHub**.
+2. Click **New → Blueprint**, connect your GitHub account if asked, and pick `zemli-app`.
+   Render reads `render.yaml`: one free web service called `zemli`. Click **Apply** / **Deploy Blueprint**.
+3. Open the `zemli` service and watch **Logs**. The first build takes about 5 to 10 minutes.
+   When you see `Application startup complete` and `models loaded for: ['cucumber', 'gate', 'tomato']`, it's live.
+4. The address is at the top of the service page, for example `https://zemli.onrender.com`
+   (Render may add letters, like `https://zemli-ab12.onrender.com`).
+   - App: `https://zemli.onrender.com/app`
+   - Admin: `https://zemli.onrender.com/admin`
+5. Your admin key: service → **Environment** → `ZEMLI_API_KEY` → click the eye icon. Keep it private.
 
-What to know about the free Space:
-- It runs without your laptop.
-- If nobody uses it for about 2 days it goes to sleep; the first visit then takes a minute to wake it.
-- **Data resets whenever it restarts.** The demo data (employee 9000000001, farmers 9000000100-119) is loaded again automatically. This is for team testing only: never put real farmers' Aadhaar or bank details here.
-- For the real trial, use a paid server with a permanent disk (see `DEPLOY.md`).
+Open the `/app` address on your phone and log in with `9000000001` to check it works.
 
-## Step 2: Make the APK with PWABuilder (about 10 minutes)
+### What the free plan means
+- **It sleeps after 15 minutes with no visitors.** The next visitor waits about a minute while it wakes up.
+- **Data resets every time it sleeps or restarts.** Farmers, scans and field photos your team adds disappear;
+  the demo data (employees 9000000001 / 9000000002, farmers 9000000100 to 9000000119) loads again automatically.
+  Best used for testing sessions where the team tests together. Never enter real farmers' Aadhaar or bank details.
+- 512 MB memory: enough for the three AI models (tested at about 270 MB).
+- For the real pilot (data kept, no sleeping) use a paid server: see `DEPLOY.md`.
 
-1. Open https://www.pwabuilder.com and enter `https://YOUR-USERNAME-zemli.hf.space/app`. Click **Start**.
-   It checks the app's manifest, icons and offline support (all included).
-2. Click **Package For Stores → Android → Generate Package**. In the options:
+## Step 3: Make the APK with PWABuilder (about 10 minutes)
+
+1. Open the app address once so the server is awake, then go to https://www.pwabuilder.com,
+   enter `https://zemli.onrender.com/app` (your address) and click **Start**.
+   Yellow warnings such as "screenshots" or "categories" are optional; ignore them.
+2. **Package for stores → Android → Generate package**:
    - Package ID: `in.zemliagritech.app`
-   - App name: `Zemli Agritech`, short name `Zemli`
-3. Download the zip. Inside you'll find:
-   - `*.apk`: install this on phones for testing
-   - `*.aab`: only needed for the Google Play Store later
-   - `signing.keystore` and `signing-key-info.txt`: **keep these safe** (Google Drive, private). You need the same key for every future update.
+   - App name `Zemli Agritech`, short name `Zemli`
+   - Display mode: Standalone
+   - Location delegation: **on** (field photos and scans use GPS)
+   - Signing key: **Create new**
+3. Download the zip. Inside:
+   - `*.apk`: install this on phones
+   - `signing.keystore` and `signing-key-info.txt`: **keep these safe** (Google Drive, private). Every future update needs them.
    - `assetlinks.json`
-4. Open `assetlinks.json` in Notepad, copy everything, and in your Space go to **Settings → Variables and secrets → New variable**: name `ASSETLINKS_JSON`, value = the copied text. Restart the Space.
-   This lets the APK open full screen without a browser address bar.
+4. Open `assetlinks.json` in Notepad and copy everything. On Render: service → **Environment** →
+   **Add environment variable**: key `ASSETLINKS_JSON`, value = the copied text → **Save changes** (it redeploys).
+   This makes the app open full screen without a browser bar.
+5. Install the APK on your own phone first and test a login, a crop scan and a daily field photo.
 
-## Step 3: Send it to the team
+## Step 4: Send it to the team
 
-Send the `.apk` file on WhatsApp or Google Drive with this note:
+Share the `.apk` on WhatsApp or Google Drive with this note:
 
-> Zemli test app: download the APK and tap it. If Android asks, allow "Install unknown apps" for WhatsApp/Files. If Play Protect warns about an unknown developer, tap "More details → Install anyway". Log in with 9000000001 (employee view) or 9000000102 (farmer view); the OTP shows on screen in test mode. Allow camera and location.
+> Zemli test app: download the APK and tap it. If Android asks, allow "Install unknown apps". If Play Protect
+> warns about an unknown developer, tap "More details → Install anyway". If the app takes a minute to open, the
+> test server is waking up. Log in with 9000000001 (employee) or 9000000102 (farmer); the OTP shows on screen in
+> test mode. Allow camera and location.
 
-iPhone users can't install APKs: they open the app link in Safari → Share → **Add to Home Screen**.
+iPhone users can't install APKs: they open the `/app` link in Safari → Share → **Add to Home Screen**.
 
-Every change you upload to the Space reaches everyone's APK automatically; you only build a new APK if you change the app name, icon or package details.
+## Updating later
+
+Upload changed files to the GitHub repository (or replace them) and Render rebuilds automatically.
+Everyone's installed app shows the new version; you only build a new APK if you change the app's name or icon.

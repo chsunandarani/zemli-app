@@ -1,0 +1,21 @@
+# Render Blueprint (FREE plan): Render -> New -> Blueprint -> pick this repository.
+# Free plan: sleeps after 15 min without visitors (use a free uptime pinger on /api/health to keep it awake),
+# and data resets whenever it restarts or redeploys (the demo data loads again automatically).
+# For data that is kept, use render-paid.yaml instead.
+services:
+  - type: web
+    name: zemli
+    runtime: docker
+    plan: free
+    rootDir: backend
+    dockerfilePath: ./Dockerfile
+    healthCheckPath: /api/health
+    envVars:
+      - key: GEMINI_API_KEY
+        sync: false                  # Render asks you to paste your key from aistudio.google.com/apikey
+      - key: GEMINI_MODEL
+        value: gemini-flash-latest   # change if Google renames models (e.g. gemini-2.5-flash)
+      - key: ZEMLI_API_KEY
+        generateValue: true          # random admin key: see it under Environment
+      - key: LOAD_DEMO
+        value: "1"

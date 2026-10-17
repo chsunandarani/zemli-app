@@ -22,6 +22,7 @@ from pydantic import BaseModel
 from sqlmodel import Session, select
 
 from .db import Scan, get_session, init_db, utcnow
+from . import gemini_ai
 from .inference import ModelRegistry
 
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -127,7 +128,7 @@ def exif_info(image_bytes: bytes):
 
 def rejection_text(crop: str, gate_label: Optional[str]) -> dict:
     if gate_label == "other":   # not tomato, cucumber or coriander at all
-        m = DISEASE_INFO["messages"]["not_related"]
+        m = DISEASE_INFO["messages"]["not_plant" if gemini_ai.all_crops() else "not_related"]
         return {"label": "not_this_crop", "name_en": m["name_en"], "name_te": m["name_te"],
                 "advice_en": m["en"], "advice_te": m["te"]}
     c = CROPS[crop]
@@ -173,6 +174,18 @@ def detect_crop(image_bytes: bytes) -> tuple[str, dict]:
     return best_crop, {"label": top["label"], "confidence": top["confidence"], "passed": not not_related}
 
 
+def ai_result(s: Scan, shown: Optional[str]) -> Optional[dict]:
+    """Gemini's own name and advice, used only for problems outside our reviewed disease list."""
+    if not s.ai_note or shown != "other_problem":
+        return None
+    try:
+        n = json.loads(s.ai_note)
+    except ValueError:
+        return None
+    return {"label": "other_problem", "name_en": n.get("name_en") or "Other problem", "name_te": n.get("name_te") or "ఇతర సమస్య",
+            "advice_en": n.get("advice_en") or "", "advice_te": n.get("advice_te") or "", "ai_generated": True}
+
+
 def scan_to_dict(s: Scan) -> dict:
     shown = s.final_label or (
         s.server_label if (s.server_confidence or 0) >= CONFIDENCE_THRESHOLD else None)
@@ -201,7 +214,12 @@ def scan_to_dict(s: Scan) -> dict:
         "source": s.source or "camera",
         "gate_confidence": s.gate_confidence,
         "result": rejection_text(s.crop, s.gate_label)
-                  if (s.status == "rejected" or s.final_label == "not_this_crop") else advice_for(s.crop, shown),
+                  if (s.status == "rejected" or s.final_label == "not_this_crop")
+                  else (ai_result(s, shown) or advice_for(s.crop, shown)),
+        "ai": ({"engine": s.ai_engine, **{k: v for k, v in json.loads(s.ai_note).items()
+                                          if k in ("explanation_en", "severity", "model", "name_en", "name_te",
+                                                   "crop_name_en", "crop_name_te", "picked")}}
+               if s.ai_note else {"engine": s.ai_engine or "local"}),
     }
 
 
@@ -266,7 +284,8 @@ def field_app():
 
 @app.get("/api/health")
 def health():
-    return {"ok": True, "crop_check": registry.has_model("gate"),
+    return {"ok": True, "ai_engine": "gemini" if gemini_ai.enabled() else "local", "gemini_model": gemini_ai.GEMINI_MODEL if gemini_ai.enabled() else None,
+            "gemini_last_error": gemini_ai.last_error, "crop_check": registry.has_model("gate"),
             "models": {c: registry.has_model(c) for c in CROPS}}
 
 
@@ -275,12 +294,14 @@ def crops():
     return {
         "threshold": CONFIDENCE_THRESHOLD,
         "crop_check": registry.has_model("gate"),
-        "auto_detect": registry.has_model("gate"),
+        "auto_detect": registry.has_model("gate") or gemini_ai.enabled(),
+        "ai_engine": "gemini" if gemini_ai.enabled() else "local",
         "crops": [
             {"id": cid, "name_en": c["name_en"], "name_te": c["name_te"],
              "has_model": registry.has_model(cid), "classes": list(c["classes"])}
-            for cid, c in CROPS.items()
+            for cid, c in CROPS.items() if cid != "other_crop" or gemini_ai.all_crops()
         ],
+        "all_crops": gemini_ai.all_crops(),
     }
 
 
@@ -315,8 +336,10 @@ async def create_scan(
     source = "upload" if source == "upload" else "camera"
     if source == "upload" and logged_in and logged_in[0] == "employee" and not ALLOW_EMPLOYEE_UPLOAD:
         raise HTTPException(400, "Uploads are switched off for staff. Use the live camera.")
-    if crop == "auto" and not registry.has_model("gate"):
+    if crop == "auto" and not registry.has_model("gate") and not gemini_ai.enabled():
         raise HTTPException(400, "Auto-detect needs the crop-check model (models/gate). Pick the crop instead.")
+    if crop == "other_crop" and not gemini_ai.all_crops():
+        raise HTTPException(400, "Other crops can only be checked when the Gemini AI is switched on.")
     if crop != "auto" and crop not in CROPS:
         raise HTTPException(400, f"Unknown crop '{crop}'. Use auto or one of: {', '.join(CROPS)}")
 
@@ -335,24 +358,6 @@ async def create_scan(
     (UPLOAD_DIR / day).mkdir(parents=True, exist_ok=True)
     (UPLOAD_DIR / rel_path).write_bytes(data)
 
-    try:
-        if crop == "auto":
-            crop, gate = detect_crop(data)   # crop becomes the detected crop
-        else:
-            gate = check_crop(crop, data)
-        preds = registry.predict(crop, data) if (gate is None or gate["passed"]) else None
-    except Exception as exc:  # unreadable image etc.
-        raise HTTPException(400, f"Could not read image: {exc}")
-
-    top = preds[0] if preds else None
-    confident = bool(top and top["confidence"] >= CONFIDENCE_THRESHOLD)
-    if gate is not None and not gate["passed"]:
-        status = "rejected"   # not this crop / not a leaf: don't run the disease model
-    elif confident and top["label"] == "healthy":
-        status = "auto_healthy"
-    else:
-        status = "needs_review"
-
     parsed_time = None
     if captured_at:
         try:
@@ -367,6 +372,47 @@ async def create_scan(
             and (datetime.now(timezone.utc) - parsed_time).total_seconds() > MAX_PHOTO_AGE_HOURS * 3600):
         raise HTTPException(400, f"This photo was taken more than {MAX_PHOTO_AGE_HOURS:.0f} hours ago. Take a new photo.")
 
+    # ---- identify crop + disease: Gemini first (if a key is set), trained models as the backup ----
+    engine, ai_note, gate, preds = "local", None, None, None
+    ai = await gemini_ai.analyze(data, None if crop == "auto" else crop, CROPS) if gemini_ai.enabled() else None
+    if ai:
+        engine = "gemini"
+        note = {k: ai[k] for k in ("name_en", "name_te", "explanation_en", "advice_en", "advice_te", "severity", "model",
+                                   "crop_name_en", "crop_name_te")}
+        seen = ai["crop"]
+        picked = None if crop == "auto" else crop
+        if seen in CROPS:
+            if picked and picked != seen:
+                note["picked"] = picked   # the user chose another crop: show the result for the crop actually seen
+            crop = seen
+        elif crop == "auto":
+            crop = next(iter(CROPS))      # not a plant at all: stored under the first crop, marked rejected below
+        ai_note = json.dumps(note, ensure_ascii=False)
+        gate = {"label": seen, "confidence": ai["confidence"] if seen == "other" else 1.0, "passed": seen == crop}
+        if gate["passed"]:
+            label = "unclear_photo" if ai["label"] == "unclear" else ai["label"]
+            preds = [{"label": label, "confidence": ai["confidence"]}]
+    else:
+        if crop == "auto" and not registry.has_model("gate"):
+            raise HTTPException(400, "The AI is busy right now. Pick the crop yourself and scan again.")
+        try:
+            if crop == "auto":
+                crop, gate = detect_crop(data)   # crop becomes the detected crop
+            else:
+                gate = check_crop(crop, data)
+            preds = registry.predict(crop, data) if (gate is None or gate["passed"]) else None
+        except Exception as exc:  # unreadable image etc.
+            raise HTTPException(400, f"Could not read image: {exc}")
+
+    top = preds[0] if preds else None
+    confident = bool(top and top["confidence"] >= CONFIDENCE_THRESHOLD)
+    if gate is not None and not gate["passed"]:
+        status = "rejected"   # not this crop / not a leaf: don't run the disease model
+    elif confident and top["label"] == "healthy":
+        status = "auto_healthy"
+    else:
+        status = "needs_review"   # diseases always go to the agronomist
+
     scan = Scan(
         client_id=client_id, crop=crop, employee_id=employee_id, farmer_id=farmer_id,
         latitude=latitude, longitude=longitude, captured_at=parsed_time, image_path=rel_path,
@@ -377,6 +423,8 @@ async def create_scan(
         gate_label=gate["label"] if gate else None,
         gate_confidence=gate["confidence"] if gate else None,
         source=source,
+        ai_engine=engine,
+        ai_note=ai_note,
         status=status,
     )
     session.add(scan)
@@ -426,7 +474,7 @@ async def review_scan(scan_id: int, body: Review, session: Session = Depends(get
     scan = session.get(Scan, scan_id)
     if not scan:
         raise HTTPException(404, "Scan not found")
-    valid = list(CROPS[scan.crop]["classes"]) + ["unclear_photo", "not_this_crop"]
+    valid = list(CROPS[scan.crop]["classes"]) + ["other_problem", "unclear_photo", "not_this_crop"]
     if body.final_label not in valid:
         raise HTTPException(400, f"Label must be one of: {', '.join(valid)}")
 

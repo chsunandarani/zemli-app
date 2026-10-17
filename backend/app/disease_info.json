@@ -98,6 +98,18 @@
           "group": "wilt"
         }
       }
+    },
+    "other_crop": {
+      "name_en": "Other crop",
+      "name_te": "ఇతర పంట",
+      "note": "Any crop other than the pilot crops. Only works with Gemini; names and advice come from the AI.",
+      "classes": {
+        "healthy": {
+          "name_en": "Healthy",
+          "name_te": "ఆరోగ్యంగా ఉంది",
+          "group": "healthy"
+        }
+      }
     }
   },
   "advice": {
@@ -140,6 +152,12 @@
       "name_te": "సంబంధం లేని ఆకు",
       "en": "This is not a tomato, cucumber or coriander leaf. Zemli checks only these crops. Please photograph one leaf of these crops.",
       "te": "ఇది టమాటా, కీర దోసకాయ లేదా కొత్తిమీర ఆకు కాదు. Zemli ఈ పంటలను మాత్రమే పరిశీలిస్తుంది. దయచేసి ఈ పంటలలో ఒక ఆకు ఫోటో తీయండి."
+    },
+    "not_plant": {
+      "name_en": "Not a plant leaf",
+      "name_te": "ఇది మొక్క ఆకు కాదు",
+      "en": "This photo does not show a plant leaf. Please photograph one leaf of the crop, close up and in daylight.",
+      "te": "ఈ ఫోటోలో మొక్క ఆకు కనిపించడం లేదు. పంట ఆకును దగ్గరగా, పగటి వెలుతురులో ఫోటో తీయండి."
     }
   }
 }

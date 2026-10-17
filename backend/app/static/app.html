@@ -586,7 +586,7 @@ async function takeFieldPhoto(){
 let scanFarmer=null;
 function cropButtons(){
   return `${autoOn?`<button class="cropbtn auto" data-c="auto">${icons.sprout}<span><b>ఏ ఆకైనా స్కాన్</b>Scan any leaf: the app finds the crop</span></button>`:''}
-    ${crops.map(c=>`<button class="cropbtn" data-c="${c.id}">${icons.leaf}<span><b>${esc(c.name_te)}</b>${esc(c.name_en)}</span></button>`).join('')}`;
+    ${crops.map(c=>`<button class="cropbtn" data-c="${c.id}">${icons.leaf}<span><b>${esc(c.name_te)}</b>${c.id==='other_crop'?'Any other crop: chilli, brinjal, paddy, cotton…':esc(c.name_en)}</span></button>`).join('')}`;
 }
 views.scan=async()=>{
   const m=$('#main');
@@ -621,16 +621,20 @@ async function doScan(crop){
 function resultBox(s,g){
   const r=s.result, top=s.top_predictions[0], sure=top&&top.confidence>=0.7, healthy=sure&&top.label==='healthy';
   const crop=crops.find(c=>c.id===s.crop);
+  const cropName=s.ai&&s.ai.crop_name_en&&s.crop==='other_crop'?`${s.ai.crop_name_te||''} / ${s.ai.crop_name_en}`:crop?`${crop.name_te} / ${crop.name_en}`:'';
+  const pickedNote=s.ai&&s.ai.picked&&s.status!=='rejected'?`<p class="y" style="margin:10px 2px 0">You picked ${esc((crops.find(c=>c.id===s.ai.picked)||{}).name_en||s.ai.picked)}, but this looks like ${esc(s.ai.crop_name_en||'another crop')}. The result is for ${esc(s.ai.crop_name_en||'that crop')}.</p>`:'';
   let pill;
   if(s.status==='rejected')pill=`<div class="result-pill bad"><span class="h">${esc(r.name_en)}</span><span class="te">${esc(r.name_te)}</span></div>`;
   else if(!top||!sure)pill=`<div class="result-pill warn"><span class="h">${!top?'No AI model for this crop yet':'Not sure'}${top?` (${Math.round(top.confidence*100)}%)`:''}</span><span class="te">${esc(r.name_te)}</span><span class="muted">The agronomist will check this photo.</span></div>`;
   else if(healthy)pill=`<div class="result-pill ok"><span class="h">Healthy (${Math.round(top.confidence*100)}% confidence)</span><span class="te">${esc(r.name_te)}</span></div>`;
-  else pill=`<div class="result-pill bad"><span class="h">Disease found: <b>${esc(r.name_en)}</b> (${Math.round(top.confidence*100)}% confidence)</span><span class="te">${esc(r.name_te)}</span></div>`;
+  else pill=`<div class="result-pill bad"><span class="h">${top.label==='other_problem'?'Problem found':'Disease found'}: <b>${esc(r.name_en)}</b> (${Math.round(top.confidence*100)}% confidence)</span><span class="te">${esc(r.name_te)}</span></div>`;
+  const aiSees=s.status!=='rejected'&&s.ai&&s.ai.explanation_en?`<p class="muted" style="margin:10px 2px 0">${s.ai.engine==='gemini'?'Gemini AI':'AI'} sees: ${esc(s.ai.explanation_en)}</p>`:'';
   const loc=s.source==='upload'?(s.latitude!=null?`${s.latitude.toFixed(5)}, ${s.longitude.toFixed(5)} (from the photo) · uploaded photo`:'Uploaded photo, no location saved in it'):g?`${g.latitude.toFixed(5)}, ${g.longitude.toFixed(5)}`:'No GPS on this photo';
-  return `${pill}
-    <div class="card glow action"><div class="muted">${crop&&s.status!=='rejected'?esc(crop.name_en)+' · ':''}Recommended action</div>
+  return `${s.status!=='rejected'&&cropName?`<p class="muted" style="margin:12px 2px 0">Crop: <b style="color:var(--ink)">${esc(cropName)}</b></p>`:''}${pill}${pickedNote}${aiSees}
+    <div class="card glow action"><div class="muted">Recommended action</div>
       <div class="head">${s.status==='rejected'?icons.camera:healthy?icons.shield:icons.spray}<span>${s.status==='rejected'?'Retake the photo':healthy?'Keep checking daily':'Act today'}</span></div>
-      <div class="te">${esc(r.advice_te)}</div><div class="muted">${esc(r.advice_en)}</div></div>
+      <div class="te">${esc(r.advice_te)}</div><div class="muted">${esc(r.advice_en)}</div>
+      ${r.ai_generated?'<p class="y" style="font-size:13px;margin:10px 0 0">AI advice: a Zemli agronomist will check it. Ask before spraying anything.</p>':''}</div>
     <p class="muted">📍 ${loc} · ${me.role==='farmer'?'saved in your crop care log':"saved under the farmer's ID"}</p>`;
 }
 

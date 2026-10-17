@@ -1,0 +1,6 @@
+**/.venv/
+**/__pycache__/
+backend/zemli.db
+backend/uploads/
+mobile/.dart_tool/
+*.pyc
