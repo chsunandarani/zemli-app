@@ -573,6 +573,31 @@ def add_employee(body: EmployeeIn, session: Session = Depends(get_session)):
     return e.model_dump()
 
 
+class EmployeeStatus(BaseModel):
+    active: bool
+
+
+@router.put("/api/admin/employees/{emp_id}/status", dependencies=[Depends(admin_only)])
+def set_employee_status(emp_id: int, body: EmployeeStatus, session: Session = Depends(get_session)):
+    """Remove (deactivate) or bring back an employee. Their field photos, scans and attendance are kept;
+    a removed employee is logged out, can't log in, and their farmer groups become unassigned."""
+    e = session.get(Employee, emp_id)
+    if not e:
+        raise HTTPException(404, "Employee not found")
+    e.active = body.active
+    session.add(e)
+    freed = 0
+    if not body.active:
+        for g in session.exec(select(FarmerGroup).where(FarmerGroup.employee_id == emp_id)).all():
+            g.employee_id = None
+            session.add(g)
+            freed += 1
+        for s in session.exec(select(LoginSession).where(LoginSession.role == "employee", LoginSession.user_id == emp_id)).all():
+            session.delete(s)
+    session.commit()
+    return {"id": e.id, "active": e.active, "groups_unassigned": freed}
+
+
 class GroupIn(BaseModel):
     employee_id: Optional[int] = None
     village: Optional[str] = None

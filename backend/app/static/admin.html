@@ -243,12 +243,18 @@ V.team=async()=>{
   const t=await api('/api/admin/employees');
   $('#main').innerHTML=`<h1>Employees & groups</h1><p class="sub">Employees log in to the app with their phone number. Assign each group of 10 farmers to an employee.</p>
   <div class="card" style="margin-bottom:16px"><b>Add employee</b><div class="row" style="margin:10px 0 0"><input id="eName" placeholder="Name"><input id="ePhone" placeholder="10-digit phone"><button class="btn primary" id="eAdd">Add</button><span class="err" id="eErr"></span></div></div>
-  <div class="tablewrap" style="margin-bottom:18px"><table><thead><tr><th>Employee</th><th>Phone</th><th>Status</th></tr></thead><tbody>
-  ${t.employees.map(e=>`<tr><td>${esc(e.name)}${e.is_demo?' <span class="tag warn">demo</span>':''}</td><td>${esc(e.phone)}</td><td>${e.active?'<span class="tag">active</span>':'<span class="tag bad">inactive</span>'}</td></tr>`).join('')||'<tr><td colspan="3" class="muted">No employees yet.</td></tr>'}</tbody></table></div>
+  <div class="tablewrap" style="margin-bottom:18px"><table><thead><tr><th>Employee</th><th>Phone</th><th>Status</th><th></th></tr></thead><tbody>
+  ${t.employees.map(e=>`<tr><td>${esc(e.name)}${e.is_demo?' <span class="tag warn">demo</span>':''}</td><td>${esc(e.phone)}</td><td>${e.active?'<span class="tag">active</span>':'<span class="tag bad">removed</span>'}</td>
+  <td>${e.active?`<button class="btn" data-rm="${e.id}" data-n="${esc(e.name)}">Remove</button>`:`<button class="btn" data-back="${e.id}">Bring back</button>`}</td></tr>`).join('')||'<tr><td colspan="4" class="muted">No employees yet.</td></tr>'}</tbody></table></div>
   <div class="tablewrap"><table><thead><tr><th>Group</th><th>Village</th><th>Employee</th><th></th></tr></thead><tbody>
-  ${t.groups.map(g=>`<tr><td>${esc(g.name)}</td><td><input data-v="${g.id}" value="${esc(g.village||'')}"></td><td><select data-e="${g.id}"><option value="">Not assigned</option>${t.employees.map(e=>`<option value="${e.id}" ${e.id===g.employee_id?'selected':''}>${esc(e.name)}</option>`).join('')}</select></td>
+  ${t.groups.map(g=>`<tr><td>${esc(g.name)}</td><td><input data-v="${g.id}" value="${esc(g.village||'')}"></td><td><select data-e="${g.id}"><option value="">Not assigned</option>${t.employees.filter(e=>e.active).map(e=>`<option value="${e.id}" ${e.id===g.employee_id?'selected':''}>${esc(e.name)}</option>`).join('')}</select></td>
   <td><button class="btn" data-g="${g.id}">Save</button></td></tr>`).join('')}</tbody></table></div>`;
   $('#eAdd').onclick=async()=>{try{await api('/api/admin/employees',{method:'POST',body:JSON.stringify({name:$('#eName').value,phone:$('#ePhone').value})});V.team();}catch(e){$('#eErr').textContent=e.message;}};
+  document.querySelectorAll('[data-rm]').forEach(b=>b.onclick=async()=>{
+    if(!confirm(`Remove ${b.dataset.n}? They will be logged out and can't log in. Their groups become "Not assigned". Their field photos and attendance are kept.`))return;
+    await api(`/api/admin/employees/${b.dataset.rm}/status`,{method:'PUT',body:JSON.stringify({active:false})});V.team();});
+  document.querySelectorAll('[data-back]').forEach(b=>b.onclick=async()=>{
+    await api(`/api/admin/employees/${b.dataset.back}/status`,{method:'PUT',body:JSON.stringify({active:true})});V.team();});
   document.querySelectorAll('[data-g]').forEach(b=>b.onclick=async()=>{const id=b.dataset.g;const ev=document.querySelector(`[data-e="${id}"]`).value;
     await api(`/api/admin/groups/${id}`,{method:'PUT',body:JSON.stringify({employee_id:ev?+ev:null,village:document.querySelector(`[data-v="${id}"]`).value||null})});b.textContent='Saved ✓';});
 };
