@@ -86,6 +86,7 @@ class Farmer(SQLModel, table=True):
     created_at: datetime = Field(default_factory=utcnow)
     created_by: Optional[int] = None
     is_demo: bool = False
+    active: bool = True                   # False = removed by admin (history kept, can't log in)
 
 
 class InputCredit(SQLModel, table=True):
@@ -190,6 +191,8 @@ def init_db() -> None:
         for name, sql_type in [("gate_label", "VARCHAR"), ("gate_confidence", "FLOAT"), ("source", "VARCHAR"), ("ai_engine", "VARCHAR"), ("ai_note", "TEXT")]:
             if name not in have:
                 conn.execute(text(f"ALTER TABLE scan ADD COLUMN {name} {sql_type}"))
+        if "active" not in {c["name"] for c in inspect(engine).get_columns("farmer")}:
+            conn.execute(text("ALTER TABLE farmer ADD COLUMN active BOOLEAN NOT NULL DEFAULT TRUE"))
 
 
 def get_session():

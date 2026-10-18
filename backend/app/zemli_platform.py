@@ -133,7 +133,7 @@ def user_from_auth(authorization: Optional[str], roles: set[str]):
             return None
         model = Employee if sess.role == "employee" else Farmer
         user = s.get(model, sess.user_id)
-        if not user or (sess.role == "employee" and not user.active):
+        if not user or not user.active:
             return None
         return sess.role, user
 
@@ -165,7 +165,7 @@ class OtpVerify(BaseModel):
 def request_otp(body: OtpRequest, session: Session = Depends(get_session)):
     phone = clean_phone(body.phone)
     emp = session.exec(select(Employee).where(Employee.phone == phone, Employee.active == True)).first()  # noqa: E712
-    farmer = None if emp else session.exec(select(Farmer).where(Farmer.phone == phone)).first()
+    farmer = None if emp else session.exec(select(Farmer).where(Farmer.phone == phone, Farmer.active == True)).first()  # noqa: E712
     if not emp and not farmer:
         if not session.exec(select(Employee)).first():   # brand-new database: nobody can log in yet
             raise HTTPException(404, "No users yet. Admin: open /admin, then 'Demo & login codes' -> 'Load demo data', "
@@ -199,7 +199,7 @@ def verify_otp(body: OtpVerify, session: Session = Depends(get_session)):
         raise HTTPException(400, "Wrong code")
     session.delete(row)
     emp = session.exec(select(Employee).where(Employee.phone == phone, Employee.active == True)).first()  # noqa: E712
-    role, user = ("employee", emp) if emp else ("farmer", session.exec(select(Farmer).where(Farmer.phone == phone)).first())
+    role, user = ("employee", emp) if emp else ("farmer", session.exec(select(Farmer).where(Farmer.phone == phone, Farmer.active == True)).first())  # noqa: E712
     if not user:
         raise HTTPException(404, "Number not registered")
     token = secrets.token_urlsafe(32)
@@ -293,7 +293,7 @@ def packages():
 def emp_groups(emp: Employee = Depends(require("employee")), session: Session = Depends(get_session)):
     out = []
     for g in session.exec(select(FarmerGroup).order_by(FarmerGroup.id)).all():
-        farmers = session.exec(select(Farmer).where(Farmer.group_id == g.id).order_by(Farmer.name)).all()
+        farmers = session.exec(select(Farmer).where(Farmer.group_id == g.id, Farmer.active == True).order_by(Farmer.name)).all()
         out.append({"id": g.id, "name": g.name, "village": g.village, "employee_id": g.employee_id,
                     "farmers": [farmer_public(f) | {"pending_bill": pending_bill(session, f.id)} for f in farmers]})
     return out
@@ -408,7 +408,7 @@ def give_credit(body: CreditIn, emp: Employee = Depends(require("employee")), se
 def bulk_give(body: BulkCreditIn, emp: Employee = Depends(require("employee")), session: Session = Depends(get_session)):
     if body.total_amount <= 0 or not body.item.strip():
         raise HTTPException(400, "Enter the item and a total above zero")
-    farmers = session.exec(select(Farmer).where(Farmer.group_id == body.group_id).order_by(Farmer.id)).all()
+    farmers = session.exec(select(Farmer).where(Farmer.group_id == body.group_id, Farmer.active == True).order_by(Farmer.id)).all()
     if not farmers:
         raise HTTPException(400, "This group has no farmers yet")
     bulk = uuid.uuid4().hex[:10]
@@ -495,7 +495,7 @@ async def iot_reading(body: ReadingIn, x_device_id: str = Header(...), x_device_
 # ---------------------------------------------------------------- module 3: admin panel
 @router.get("/api/admin/overview", dependencies=[Depends(admin_only)])
 def overview(session: Session = Depends(get_session)):
-    farmers = session.exec(select(Farmer)).all()
+    farmers = session.exec(select(Farmer).where(Farmer.active == True)).all()  # noqa: E712
     today = utcnow().replace(hour=0, minute=0, second=0, microsecond=0)
     scans_today = session.exec(select(Scan).where(Scan.received_at >= today)).all()
     unsettled = session.exec(select(InputCredit).where(InputCredit.settled_in == None)).all()  # noqa: E711
@@ -515,13 +515,15 @@ def overview(session: Session = Depends(get_session)):
 
 
 @router.get("/api/admin/farmers", dependencies=[Depends(admin_only)])
-def admin_farmers(session: Session = Depends(get_session)):
+def admin_farmers(all: bool = False, session: Session = Depends(get_session)):
+    """Active farmers; ?all=1 also lists removed ones (for the Farmers page)."""
     out = []
-    for f in session.exec(select(Farmer).order_by(Farmer.group_id, Farmer.name)).all():
+    q = select(Farmer) if all else select(Farmer).where(Farmer.active == True)  # noqa: E712
+    for f in session.exec(q.order_by(Farmer.group_id, Farmer.name)).all():
         last_scan = session.exec(select(Scan).where(Scan.farmer_id == str(f.id)).order_by(Scan.received_at.desc()).limit(1)).first()
         out.append(farmer_public(f, full_bank=True) | {
             "pending_bill": pending_bill(session, f.id), "iot": iot_status(latest_reading(session, f.id)),
-            "last_scan": iso(last_scan.received_at) if last_scan else None,
+            "last_scan": iso(last_scan.received_at) if last_scan else None, "active": f.active,
             "last_scan_result": last_scan and core().scan_to_dict(last_scan)["result"]["name_en"]})
     return out
 
@@ -547,6 +549,26 @@ def edit_farmer(farmer_id: int, body: FarmerFinance, session: Session = Depends(
     session.add(f)
     session.commit()
     return farmer_public(f, full_bank=True)
+
+
+class ActiveIn(BaseModel):
+    active: bool
+
+
+@router.put("/api/admin/farmers/{farmer_id}/status", dependencies=[Depends(admin_only)])
+def set_farmer_status(farmer_id: int, body: ActiveIn, session: Session = Depends(get_session)):
+    """Remove (deactivate) or bring back a farmer. Bills, payouts, scans and IoT history are kept;
+    a removed farmer is logged out, can't log in, and disappears from employee lists, the map and bulk give."""
+    f = session.get(Farmer, farmer_id)
+    if not f:
+        raise HTTPException(404, "Farmer not found")
+    f.active = body.active
+    session.add(f)
+    if not body.active:
+        for s in session.exec(select(LoginSession).where(LoginSession.role == "farmer", LoginSession.user_id == farmer_id)).all():
+            session.delete(s)
+    session.commit()
+    return {"id": f.id, "active": f.active, "pending_bill": pending_bill(session, f.id)}
 
 
 class EmployeeIn(BaseModel):
@@ -914,7 +936,7 @@ def nearest_farm(session: Session, lat: Optional[float], lon: Optional[float]):
     if lat is None or lon is None:
         return None, None
     best, best_d = None, None
-    for f in session.exec(select(Farmer).where(Farmer.latitude != None)).all():  # noqa: E711
+    for f in session.exec(select(Farmer).where(Farmer.latitude != None, Farmer.active == True)).all():  # noqa: E711
         d = metres_between(lat, lon, f.latitude, f.longitude)
         if d is not None and (best_d is None or d < best_d):
             best, best_d = f, d

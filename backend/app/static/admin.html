@@ -225,15 +225,21 @@ V.audit=async()=>{
 };
 
 V.farmers=async()=>{
-  const fs=await api('/api/admin/farmers');
-  $('#main').innerHTML=`<h1>Farmers</h1><p class="sub">${fs.length} farmers. Edit subsidy and loan figures as approvals arrive; farmers see them in their app.</p>
+  const fs=await api('/api/admin/farmers?all=1');
+  $('#main').innerHTML=`<h1>Farmers</h1><p class="sub">${fs.filter(f=>f.active).length} farmers${fs.some(f=>!f.active)?` (+${fs.filter(f=>!f.active).length} removed)`:''}. Edit subsidy and loan figures as approvals arrive; farmers see them in their app.</p>
   <div class="tablewrap"><table><thead><tr><th>Group</th><th>Name</th><th>Phone</th><th>Package</th><th>Bank / IFSC</th><th>Aadhaar</th><th>Survey</th>
   <th class="num">Subsidy received</th><th class="num">Subsidy approved</th><th class="num">Loan approved</th><th class="num">Loan repaid</th><th class="num">Pending bill</th><th>IoT</th><th></th></tr></thead>
-  <tbody>${fs.map(f=>`<tr data-id="${f.id}"><td>${f.group_id}</td><td><b>${esc(f.name)}</b>${f.is_demo?' <span class="tag warn">demo</span>':''}</td><td>${esc(f.phone)}</td><td>${esc(f.package_label)}</td>
+  <tbody>${fs.map(f=>`<tr data-id="${f.id}" ${f.active?'':'style="opacity:.5"'}><td>${f.group_id}</td><td><b>${esc(f.name)}</b>${f.is_demo?' <span class="tag warn">demo</span>':''}${f.active?'':' <span class="tag bad">removed</span>'}</td><td>${esc(f.phone)}</td><td>${esc(f.package_label)}</td>
     <td>${esc(f.bank_account||'-')}<br><span class="muted">${esc(f.ifsc||'')}</span></td><td>${esc(f.aadhaar||'-')}</td><td>${esc(f.survey_no||'-')}</td>
     <td class="num"><input type="number" data-k="subsidy_received" value="${f.subsidy_received}"></td><td class="num"><input type="number" data-k="subsidy" value="${f.subsidy}"></td>
     <td class="num"><input type="number" data-k="loan_approved" value="${f.loan_approved}"></td><td class="num">${rs(f.loan_repaid)}</td><td class="num">${rs(f.pending_bill)}</td>
-    <td><span class="orb ${f.iot.light}"></span></td><td><button class="btn" data-save="${f.id}">Save</button></td></tr>`).join('')}</tbody></table></div>`;
+    <td><span class="orb ${f.iot.light}"></span></td><td style="white-space:nowrap">${f.active?`<button class="btn" data-save="${f.id}">Save</button> <button class="btn" data-frm="${f.id}" data-n="${esc(f.name)}" data-bill="${f.pending_bill}">Remove</button>`:`<button class="btn" data-fback="${f.id}">Bring back</button>`}</td></tr>`).join('')}</tbody></table></div>`;
+  document.querySelectorAll('[data-frm]').forEach(b=>b.onclick=async()=>{
+    const bill=+b.dataset.bill;
+    if(!confirm(`Remove ${b.dataset.n}?${bill>0?`\n\nWarning: this farmer still owes ${rs(bill)} in bills.`:''}\n\nThey will be logged out and can't log in, and won't appear in employee lists, the map or bulk give. Their bills, payouts and scan history are kept.`))return;
+    try{await api(`/api/admin/farmers/${b.dataset.frm}/status`,{method:'PUT',body:JSON.stringify({active:false})});V.farmers();}catch(e){alert(e.message);}});
+  document.querySelectorAll('[data-fback]').forEach(b=>b.onclick=async()=>{
+    try{await api(`/api/admin/farmers/${b.dataset.fback}/status`,{method:'PUT',body:JSON.stringify({active:true})});V.farmers();}catch(e){alert(e.message);}});
   document.querySelectorAll('[data-save]').forEach(b=>b.onclick=async()=>{
     const tr=b.closest('tr'), body={};tr.querySelectorAll('input[data-k]').forEach(i=>body[i.dataset.k]=+i.value);
     b.disabled=true;try{await api(`/api/admin/farmers/${b.dataset.save}`,{method:'PUT',body:JSON.stringify(body)});b.textContent='Saved ✓';}catch(e){alert(e.message);}b.disabled=false;});
