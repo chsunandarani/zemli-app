@@ -148,8 +148,9 @@ def require(role: str):
 
 
 def admin_only(x_api_key: Optional[str] = Header(default=None)):
-    if API_KEY and x_api_key != API_KEY:
-        raise HTTPException(401, "Missing or wrong API key")
+    from .admin_auth import who
+    if not who(x_api_key):
+        raise HTTPException(401, "Please log in as a Zemli admin")
 
 
 class OtpRequest(BaseModel):

@@ -84,6 +84,7 @@
   <section id="queue" aria-label="Scans"><div class="counts" id="counts">Loading scans…</div><div id="rows"></div></section>
   <section id="detail"><p class="empty">Pick a scan on the left to check the photo and confirm the diagnosis. New scans from the field appear here as soon as they upload.</p></section>
 </main>
+<script src="/static/admin-login.js"></script>
 <script>
 const KEY_NAME='zemli_api_key';
 let apiKey=localStorage.getItem(KEY_NAME)||'';
@@ -93,7 +94,7 @@ const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&
 
 async function api(path,opts={}){
   const r=await fetch(path,{...opts,headers:{'Content-Type':'application/json','X-Api-Key':apiKey,...(opts.headers||{})}});
-  if(r.status===401){apiKey=prompt('Enter the Zemli API key')||'';localStorage.setItem(KEY_NAME,apiKey);return api(path,opts);}
+  if(r.status===401){apiKey=await zemliAdminLogin(apiKey?'Please log in again.':'');return api(path,opts);}
   if(!r.ok){throw new Error((await r.json().catch(()=>({}))).detail||r.statusText);}
   return r.json();
 }

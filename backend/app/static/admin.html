@@ -83,6 +83,8 @@
   .visits .body{padding:10px 12px;font-size:13px;line-height:1.6}
   button:focus-visible,input:focus-visible,select:focus-visible,a:focus-visible{outline:2px solid var(--glow);outline-offset:2px}
   @media (max-width:900px){.att-layout{grid-template-columns:1fr}}
+  .whoami{margin-top:auto;padding:14px 10px 4px;border-top:1px solid rgba(255,255,255,.08);font-size:12px;color:#9DB8A6;line-height:1.6}
+  .whoami b{color:#E8F5EC}.whoami button{display:block;margin-top:6px;padding:6px 10px!important;font-size:12px;width:auto!important}
   @media (max-width:800px){body{grid-template-columns:1fr}aside{position:static;height:auto;display:flex;flex-wrap:wrap;gap:4px}aside .brand{width:100%}aside button,aside a{width:auto}main{padding:16px}}
 </style>
 </head>
@@ -99,8 +101,10 @@
   <button data-v="iot">IoT devices</button>
   <a href="/" target="_blank" rel="noopener">Disease review ↗</a>
   <button data-v="demo">Demo & login codes</button>
+<div class="whoami" id="who"></div>
 </aside>
 <main id="main"></main>
+<script src="/static/admin-login.js"></script>
 <script>
 const $=s=>document.querySelector(s);
 const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
@@ -109,7 +113,7 @@ const when=iso=>iso?new Date(iso).toLocaleString('en-IN',{day:'numeric',month:'s
 let key=localStorage.getItem('zemli_api_key')||'';
 async function api(path,opts={}){
   const r=await fetch(path,{...opts,headers:{'Content-Type':'application/json','X-Api-Key':key,...(opts.headers||{})}});
-  if(r.status===401){key=prompt('Enter the Zemli admin API key')||'';localStorage.setItem('zemli_api_key',key);return api(path,opts);}
+  if(r.status===401){key=await zemliAdminLogin(key?'Please log in again.':'');showWho();return api(path,opts);}
   const j=await r.json().catch(()=>({}));if(!r.ok)throw new Error(j.detail||r.statusText);return j;
 }
 const V={};let cur='';
@@ -318,6 +322,10 @@ V.demo=async()=>{
   $('#dDel').onclick=async()=>{if(!confirm('Remove all demo farmers and their data?'))return;const r=await api('/api/admin/demo-data',{method:'DELETE'});$('#dMsg').textContent=`Removed ${r.removed_farmers} demo farmers.`;};
 };
 window.addEventListener('hashchange',()=>{const v=location.hash.slice(1);if(v&&v!==cur)go(v);});
+async function showWho(){try{const r=await fetch('/api/admin/whoami',{headers:{'X-Api-Key':key}});if(!r.ok)return;const w=await r.json();
+  $('#who').innerHTML=w.via==='open'?'<span class="muted">Open access (local testing)</span>':`Logged in as <b>${esc(w.name)}</b><button id="logout">Log out</button>`;
+  const b=$('#logout');if(b)b.onclick=()=>zemliAdminLogout();}catch(e){}}
+showWho();
 go(location.hash.slice(1)||'overview');
 </script>
 </body>

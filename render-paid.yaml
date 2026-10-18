@@ -17,6 +17,8 @@ services:
         sync: false                  # Render asks you to paste your key from aistudio.google.com/apikey
       - key: GEMINI_MODEL
         value: gemini-flash-latest   # change if Google renames models (e.g. gemini-2.5-flash)
+      - key: ADMIN_USERS
+        sync: false                  # who may open /admin: Name:phone:password; Name2:phone2:password2
       - key: ZEMLI_API_KEY
         generateValue: true          # random admin key: see it under Environment
       - key: DATABASE_URL

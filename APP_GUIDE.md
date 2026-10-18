@@ -69,6 +69,23 @@ explanation and Telugu advice. Coriander works too, without a trained model.
 - `GEMINI_MODEL` (default `gemini-flash-latest`) chooses the model. `AI_ENGINE=local` switches Gemini off.
 - On the free tier Google may use the photos to improve its products, and daily limits apply. Use a paid key for the real pilot.
 
+## Who can open the admin panel
+
+The admin panel (`/admin`) and the disease review desk (`/`) ask for a phone number and password.
+Only the people listed in the `ADMIN_USERS` setting can log in:
+
+```
+ADMIN_USERS = Sunanda:9390255655:a-long-password; Ravi:9876543210:another-password
+```
+
+- One person per entry: `Name:10-digit phone:password`, entries separated by `;`. Passwords need 8+ characters.
+- On Render: service -> Environment -> `ADMIN_USERS` -> Save (it restarts in a few minutes).
+- To remove someone, delete their entry and save: they are logged out everywhere.
+  Changing a password also logs that person out.
+- 5 wrong passwords for a number locks it for 15 minutes.
+- `ZEMLI_API_KEY` still opens the panel as an emergency master key ("Use the master key instead").
+  Keep it secret; don't hand it out.
+
 ## IoT
 
 - `iot/esp32_zemli_sensor.ino`: ESP32 + 4G (SIM7600 / A7670C) box that reads soil moisture, DHT22 temperature/humidity and an RS485 NPK sensor every 15 minutes and posts to `/api/iot/reading`. Prototype code: calibrate the moisture sensor and check your NPK sensor's Modbus registers.

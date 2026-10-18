@@ -17,5 +17,7 @@ services:
         value: gemini-flash-latest   # change if Google renames models (e.g. gemini-2.5-flash)
       - key: ZEMLI_API_KEY
         generateValue: true          # random admin key: see it under Environment
+      - key: ADMIN_USERS
+        sync: false                  # who may open /admin: Name:phone:password; Name2:phone2:password2
       - key: LOAD_DEMO
         value: "1"

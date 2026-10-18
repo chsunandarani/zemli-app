@@ -22,7 +22,7 @@ from pydantic import BaseModel
 from sqlmodel import Session, select
 
 from .db import Scan, get_session, init_db, utcnow
-from . import gemini_ai
+from . import admin_auth, gemini_ai
 from .inference import ModelRegistry
 
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -74,13 +74,13 @@ hub = Hub()
 
 # ---------- helpers ----------
 def admin_only(x_api_key: Optional[str] = Header(default=None)):
-    if API_KEY and x_api_key != API_KEY:
-        raise HTTPException(status_code=401, detail="Missing or wrong API key")
+    if not admin_auth.who(x_api_key):
+        raise HTTPException(status_code=401, detail="Please log in as a Zemli admin")
 
 
 def check_key(x_api_key: Optional[str] = Header(default=None), authorization: Optional[str] = Header(default=None)):
     """Admin API key, or a logged-in Zemli employee (OTP login in the app)."""
-    if not API_KEY or x_api_key == API_KEY:
+    if admin_auth.who(x_api_key):
         return
     from .zemli_platform import user_from_auth
     if user_from_auth(authorization, {"employee", "farmer"}):
@@ -519,7 +519,7 @@ async def websocket(ws: WebSocket, role: str = "dashboard", employee_id: str = "
             await ws.close(code=4401)
             return
         role, employee_id = "employee", (f"E{u[1].id}" if u[0] == "employee" else f"farmer:{u[1].id}")
-    elif API_KEY and key != API_KEY:
+    elif not admin_auth.who(key):
         await ws.close(code=4401)
         return
     await ws.accept()
@@ -534,3 +534,4 @@ async def websocket(ws: WebSocket, role: str = "dashboard", employee_id: str = "
 
 from .zemli_platform import router as platform_router  # noqa: E402  (after hub/registry exist)
 app.include_router(platform_router)
+app.include_router(admin_auth.router)
